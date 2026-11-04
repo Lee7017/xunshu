@@ -1,0 +1,19 @@
+{
+  "name": "xunshu-md-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs --host 0.0.0.0",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs --host 0.0.0.0",
+    "build:site": "npm run build",
+    "build:with-demo": "npm run build && node scripts/attach-demo.mjs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.18",
+    "lucide-vue-next": "^0.468.0"
+  },
+  "engines": {"node": ">=20"}
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="迅树 MD 标识">
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="#22252b"/>
+  <path d="M17 17h19l11 11v19H17z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/>
+  <path d="M36 18v11h11M23 36h17M23 42h13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
