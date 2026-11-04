@@ -13,6 +13,8 @@ export default defineConfig({
   lastUpdated: true,
   ...(process.env.SITE_URL ? { sitemap: { hostname: process.env.SITE_URL } } : {}),
   head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}logo.svg` }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: `${base}apple-touch-icon.png` }],
     ['meta', { name: 'theme-color', content: '#f1f2f5' }],
     ['meta', { name: 'description', content: '迅树 MD — 本地优先的 Markdown 笔记与资料管理工具' }]
   ],

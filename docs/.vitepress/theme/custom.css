@@ -505,3 +505,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
     background-color: var(--vp-c-bg-elv) !important;
   }
 }
+
+/* 迅树 MD 软件图标：使用用户提供的原始标识 */
+.hero-app-logo {
+  display: block;
+  width: 112px;
+  height: 112px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(15, 17, 22, .09), 0 0 0 1px rgba(25, 29, 35, .05);
+}
+@media (max-width: 640px) {
+  .hero-app-logo { width: 88px; height: 88px; border-radius: 19px; }
+}
