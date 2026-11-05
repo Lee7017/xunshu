@@ -38,7 +38,9 @@ jobs:
           PREVIEW_URL: http://127.0.0.1:4173/xunshu/
         run: |
           set -euo pipefail
-          npx vitepress preview docs --host 127.0.0.1 --port 4173 > /tmp/xunshu-preview.log 2>&1 &
+          mkdir -p /tmp/xunshu-site-preview/xunshu
+          cp -a docs/.vitepress/dist/. /tmp/xunshu-site-preview/xunshu/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory /tmp/xunshu-site-preview > /tmp/xunshu-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS -o /dev/null http://127.0.0.1:4173/xunshu/; then break; fi
             sleep 1
