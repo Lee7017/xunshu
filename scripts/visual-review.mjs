@@ -237,7 +237,7 @@ for (const c of [
   await context.close()
 }
 
-// 内测邀请码：昵称和手机号均必填，生成由用户自行发送的 mailto 草稿；没有后台提交或自动发送。
+// 内测邀请码：仅显示发邮件说明，支持复制；不收集手机号、不触发 mailto。
 for (const item of [
   { label: 'invite-desktop-light', width: 1440, height: 900, theme: 'light' },
   { label: 'invite-desktop-dark', width: 1440, height: 900, theme: 'dark' },
@@ -246,54 +246,48 @@ for (const item of [
 ]) {
   const ctx = await browser.newContext({
     viewport: { width: item.width, height: item.height }, colorScheme: item.theme,
-    isMobile: item.width < 500, hasTouch: item.width < 500
+    isMobile: item.width < 500, hasTouch: item.width < 500,
+    permissions: ['clipboard-read', 'clipboard-write']
   })
   const page = await ctx.newPage()
   const pageErrors = []
   page.on('pageerror', err => pageErrors.push(err.message))
   const response = await page.goto(new URL('invite/', origin).href, { waitUntil: 'networkidle' })
   if (!response?.ok()) failures.push(item.label + ': invite page HTTP ' + response?.status())
-  const button = page.getByRole('button', { name: /打开自己的邮箱写信/ })
-  const nickname = page.getByRole('textbox', { name: /昵称/ })
-  const phone = page.getByRole('textbox', { name: /手机号/ })
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with empty fields')
-  await phone.fill('+86 138 0012 3456')
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled without nickname')
-  await nickname.fill(' ')
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with whitespace-only nickname')
-  await nickname.fill('李')
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with one-character nickname')
-  await nickname.fill('山林记录者')
-  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled with valid nickname and phone')
-  await phone.fill('1234')
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with invalid phone')
-  await phone.fill('+86 138 0012 3456')
-  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled after restoring valid phone')
-  const mailto = await button.getAttribute('data-mailto')
-  let composed
-  try {
-    const u = new URL(mailto)
-    composed = { recipient: u.pathname, subject: u.searchParams.get('subject'), body: u.searchParams.get('body') }
-  } catch {
-    failures.push(item.label + ': mailto is invalid')
+  const instructions = page.locator('.invite-panel')
+  const content = await instructions.textContent()
+  for (const word of ['昵称', '手机号', '3406521093@qq.com', '迅树 MD 内测邀请码申请', '使用自己的账号']) {
+    if (!content?.includes(word)) failures.push(item.label + ': missing instruction ' + word)
   }
-  if (!mailto?.startsWith('mailto:3406521093@qq.com?')) failures.push(item.label + ': wrong recipient address')
-  if (composed?.subject !== '迅树 MD 内测邀请码申请') failures.push(item.label + ': subject missing')
-  if (!composed?.body?.includes('昵称：山林记录者')) failures.push(item.label + ': nickname missing in email')
-  if (!composed?.body?.includes('手机号：+86 138 0012 3456')) failures.push(item.label + ': phone missing in email')
-  if (!composed?.body?.includes('请直接回复这封邮件')) failures.push(item.label + ': missing reply instruction')
+  if (await instructions.locator('form, input, [data-mailto], a[href^="mailto:"]').count())
+    failures.push(item.label + ': legacy form or mailto still exists')
+  const emailButton = page.getByRole('button', { name: '复制邮箱' })
+  const subjectButton = page.getByRole('button', { name: '复制主题' })
+  const bodyButton = page.getByRole('button', { name: '复制邮件正文' })
+  await emailButton.click()
+  const emailClipboard = await page.evaluate(() => navigator.clipboard.readText())
+  if (emailClipboard !== '3406521093@qq.com') failures.push(item.label + ': email copy mismatch')
+  await subjectButton.click()
+  const subjectClipboard = await page.evaluate(() => navigator.clipboard.readText())
+  if (subjectClipboard !== '迅树 MD 内测邀请码申请') failures.push(item.label + ': subject copy mismatch')
+  await bodyButton.click()
+  const bodyClipboard = await page.evaluate(() => navigator.clipboard.readText())
+  if (!bodyClipboard.includes('昵称：请填写你的昵称') || !bodyClipboard.includes('手机号：请填写你的手机号'))
+    failures.push(item.label + ': body template copy mismatch')
   const layout = await page.evaluate(() => ({
     overflow: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
     title: document.querySelector('h1')?.textContent?.trim(),
-    submitHeight: Math.round(document.querySelector('.invite-submit')?.getBoundingClientRect().height || 0),
-    corners: getComputedStyle(document.querySelector('.invite-submit')).borderRadius,
+    buttons: [...document.querySelectorAll('.invite-panel .xs-button')].map(el => ({
+      height: Math.round(el.getBoundingClientRect().height), corners: getComputedStyle(el).borderRadius
+    })),
     footer: document.querySelector('.VPFooter .copyright')?.textContent?.trim()
   }))
   if (layout.overflow > 1) failures.push(item.label + ': horizontal overflow')
-  if (layout.submitHeight !== 46 || layout.corners !== '12px') failures.push(item.label + ': button style inconsistent')
+  if (layout.buttons.length !== 3 || layout.buttons.some(b => b.height !== 46 || b.corners !== '12px'))
+    failures.push(item.label + ': copy button styling inconsistent')
   if (layout.footer !== 'Copyright © 2026 迅树 MD. All rights reserved.') failures.push(item.label + ': footer missing')
   if (pageErrors.length) failures.push(item.label + ': JS exceptions ' + pageErrors.join(' | '))
-  findings.push({ test: 'invite-mailto', variant: item.label, recipient: composed?.recipient, nicknameInEmail: composed?.body?.includes('昵称：山林记录者'), phoneInEmail: composed?.body?.includes('手机号：+86 138 0012 3456'), ...layout })
+  findings.push({ test: 'invite-manual-email', variant: item.label, emailClipboard, subjectClipboard, bodyCopied: true, ...layout })
   await capture(page, item.label + '.png', true)
   await ctx.close()
 }

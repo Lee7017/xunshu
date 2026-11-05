@@ -15,7 +15,7 @@ const iconMap = { monitor: Monitor, smartphone: Smartphone, laptop: Laptop, tabl
     <section class="invite-banner" aria-labelledby="download-invite-title">
       <div>
         <h2 id="download-invite-title">申请内测邀请码</h2>
-        <p>希望提前体验？填写手机号，用你自己的邮箱发送申请，我们通过邮件回复。</p>
+        <p>希望提前体验？用自己的邮箱写明昵称和手机号发送申请，我们通过邮件回复。</p>
       </div>
       <a class="xs-button secondary" :href="withBase('/invite/')">申请邀请码 <ArrowRight :size="17" /></a>
     </section>
