@@ -55,3 +55,13 @@ CSS 变量定义在 `docs/.vitepress/theme/custom.css` 的 `:root` / `.dark` 内
 - GitHub Release 未配置时按钮禁用；软件截图仍为明确示意；无页脚。
 
 本轮没有执行最终 VitePress 构建；上述条目是交付后验收标准，不是已完成的浏览器联调证明。
+
+
+## 全站交互增强（2026-11）
+
+- 保留原黑白玻璃设计和 VitePress 页面结构，统一按钮、导航、菜单、卡片、正文链接的 hover / active / focus-visible 反馈。
+- 首页软件图标与主标题分层进入；滚动到功能区、下载卡片和文档容器时渐入。
+- 下载按钮加入按下缩放和点击波纹；Release 真实链接保持不变，不修改未开放平台的发布状态。
+- 仅具备悬浮能力的桌面指针使用悬浮位移；触控设备提供按压反馈，不依赖 hover。
+- 用户启用系统“减少动态效果”时，跳过滚动观察与点击波纹，CSS 关闭动画，并避免隐藏内容。
+- 客户端动画逻辑集中在 `docs/.vitepress/theme/components/MotionEnhancements.vue`，纯样式集中在 `docs/.vitepress/theme/custom.css`。
