@@ -79,79 +79,23 @@ for (const c of [
     findings.push({ component: 'download-card', transformBefore, transformAfter, href })
     await capture(page, 'downloads-hover-desktop.png')
   }
+  // 删除搜索后，不应出现搜索按钮、搜索弹窗或有宽度的搜索占位。
+  const searchState = await page.evaluate(() => {
+    const slot = document.querySelector('.VPNavBarSearch')
+    return {
+      buttonCount: document.querySelectorAll('.VPNavBarSearch button, .DocSearch-Button').length,
+      dialogCount: document.querySelectorAll('.VPLocalSearchBox').length,
+      slotVisible: !!slot && getComputedStyle(slot).display !== 'none',
+      slotWidth: slot ? slot.getBoundingClientRect().width : 0
+    }
+  })
+  if (searchState.buttonCount || searchState.dialogCount || searchState.slotVisible || searchState.slotWidth > 0)
+    failures.push(c.label + ': search UI was not fully removed')
+  findings.push({ test: 'search-removed-' + c.label, ...searchState })
   if (c.label === 'home-desktop') {
-    // 搜索放在导航链接后面；点击/快捷键都使用 VitePress 原生弹窗。
-    const search = page.locator('.VPNavBarSearch .DocSearch-Button').first()
-    const about = page.locator('.VPNavBarMenu').getByRole('link', { name: '关于', exact: true })
-    const positions = await page.evaluate(() => {
-      const s = document.querySelector('.VPNavBarSearch .DocSearch-Button')?.getBoundingClientRect()
-      const a = [...document.querySelectorAll('.VPNavBarMenu a')].find(x => x.textContent?.trim() === '关于')?.getBoundingClientRect()
-      return s && a ? { searchLeft: s.left, searchWidth: s.width, aboutRight: a.right } : null
-    })
-    if (!positions || positions.searchLeft < positions.aboutRight - 1) failures.push('desktop: search button should be to the right of 关于')
-    await capture(page, 'search-navbar-desktop.png', false)
-    await search.click()
-    await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
-    await page.locator('.VPLocalSearchBox .search-input').fill('Markdown')
-    const modalStyling = await page.evaluate(() => {
-      const shell = document.querySelector('.VPLocalSearchBox .shell')
-      const input = document.querySelector('.VPLocalSearchBox .search-input')
-      const bar = document.querySelector('.VPLocalSearchBox .search-bar')
-      const firstResult = document.querySelector('.VPLocalSearchBox .result')
-      if (!shell || !input || !bar) return null
-      return {
-        width: Math.round(shell.getBoundingClientRect().width),
-        inputOutline: getComputedStyle(input).outlineStyle,
-        barRadius: getComputedStyle(bar).borderRadius,
-        firstBorderWidth: firstResult && getComputedStyle(firstResult).borderTopWidth
-      }
-    })
-    if (!modalStyling) failures.push('search modal missing required elements')
-    else {
-      if (modalStyling.inputOutline !== 'none') failures.push('search input has nested outline')
-      if (modalStyling.firstBorderWidth && parseFloat(modalStyling.firstBorderWidth) > 1) failures.push('search result border too thick')
-    }
-    if (modalStyling && modalStyling.width > 680) failures.push('desktop: search modal width exceeds 680px')
-    await page.waitForTimeout(650)
-    const matches = await page.locator('.VPLocalSearchBox .result').count()
-    if (matches === 0) failures.push('desktop: Markdown search returned no results')
-    await capture(page, 'search-dialog-desktop.png', false)
-    await page.keyboard.press('Escape')
-    await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
-    findings.push({ test: 'search-desktop', positions, matches, modalStyling, closedByEscape: true })
-  }
-  if (c.label === 'home-mobile') {
-    const search = page.locator('.VPNavBarSearch .DocSearch-Button').first()
-    await search.click()
-    await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
-    await page.locator('.VPLocalSearchBox .search-input').fill('同步')
-    const modalStyling = await page.evaluate(() => {
-      const shell = document.querySelector('.VPLocalSearchBox .shell')
-      const input = document.querySelector('.VPLocalSearchBox .search-input')
-      const bar = document.querySelector('.VPLocalSearchBox .search-bar')
-      const firstResult = document.querySelector('.VPLocalSearchBox .result')
-      if (!shell || !input || !bar) return null
-      return {
-        width: Math.round(shell.getBoundingClientRect().width),
-        inputOutline: getComputedStyle(input).outlineStyle,
-        barRadius: getComputedStyle(bar).borderRadius,
-        firstBorderWidth: firstResult && getComputedStyle(firstResult).borderTopWidth
-      }
-    })
-    if (!modalStyling) failures.push('search modal missing required elements')
-    else {
-      if (modalStyling.inputOutline !== 'none') failures.push('search input has nested outline')
-      if (modalStyling.firstBorderWidth && parseFloat(modalStyling.firstBorderWidth) > 1) failures.push('search result border too thick')
-    }
-    if (modalStyling && modalStyling.width > 390) failures.push('mobile: search modal extends beyond viewport')
-    await page.waitForTimeout(650)
-    const matches = await page.locator('.VPLocalSearchBox .result').count()
-    if (matches === 0) failures.push('mobile: search 同步 returned no results')
-    await capture(page, 'search-dialog-mobile.png', false)
-    const back = page.locator('.VPLocalSearchBox .back-button')
-    await back.click()
-    await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
-    findings.push({ test: 'search-mobile', matches, modalStyling, closedByBack: true })
+    await page.keyboard.press('Control+k')
+    await page.waitForTimeout(180)
+    if (await page.locator('.VPLocalSearchBox').count()) failures.push('desktop: Ctrl+K still opens search')
   }
   if (c.label === 'home-desktop') {
     // “关于”必须是链接，不能是悬浮即展开的下拉按钮。

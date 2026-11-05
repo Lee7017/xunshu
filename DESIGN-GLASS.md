@@ -42,7 +42,7 @@ CSS 变量定义在 `docs/.vitepress/theme/custom.css` 的 `:root` / `.dark` 内
 ## 施工要点
 
 - 首页和演示性内容组件位于 `docs/.vitepress/theme/components/`。
-- VitePress 默认主题、导航、搜索框、目录、正文、代码块、页面切换和两套侧栏的样式均从 `custom.css` 调整。
+- VitePress 默认主题、导航、目录、正文、代码块、页面切换和两套侧栏的样式均从 `custom.css` 调整。
 - 对无法渲染 `backdrop-filter` 的浏览器提供不透明背景回退，对系统 `prefers-reduced-motion` 关闭额外过渡。
 - 尽量维持现有 Vue/Markdown 内容，不改数据协议、路由、部署命令或 VitePress 核心结构。
 
@@ -50,7 +50,7 @@ CSS 变量定义在 `docs/.vitepress/theme/custom.css` 的 `:root` / `.dark` 内
 
 - `npm install && npm run build` 在可联网开发机通过；GitHub Actions 可以生成 Pages 静态文件。
 - 首页、下载、教程、更新日志、关于、截图、`/demo/` 页面无视觉断裂。
-- 320px～1440px 下无横向滚动；移动端导航、侧栏、搜索正常。
+- 320px～1440px 下无横向滚动；移动端导航、侧栏正常。
 - 亮色和深色模式正文均可阅读；键盘聚焦明确。
 - GitHub Release 未配置时按钮禁用；软件截图仍为明确示意；无页脚。
 
@@ -65,11 +65,8 @@ CSS 变量定义在 `docs/.vitepress/theme/custom.css` 的 `:root` / `.dark` 内
 - 保留原生 VitePress 路由和可访问性行为；键盘焦点即时显示，尊重系统“减少动态效果”。
 - 构建及截图回归通过 GitHub Actions 的 Visual review 工作流检查，截图归档为 Actions Artifact。
 
+## 搜索移除（2026-11-05）
 
-## 搜索栏（2026-11-05）
-
-- 搜索入口与导航菜单在同一侧，放在“关于”后、外观切换前，避免靠近产品 Logo 的孤立输入框。
-- Desktop：148px 的紧凑搜索按钮、简化快捷键标签；小屏导航自动收窄，手机保留 38px 搜索图标。
-- 搜索弹窗限制宽度至 660px，重新组织输入区、结果列表、键盘提示；手机采用全屏输入布局。
-- 保留 VitePress 本地全文搜索、Ctrl/⌘ + K、Esc 关闭，不修改搜索数据或索引。
-- 截图审查补充桌面/手机搜索结果、悬浮位置和“关于”路由检查。
+- 根据官网需求，关闭 VitePress 本地全文搜索配置；不显示搜索按钮、弹窗和搜索占位区域。
+- 清理所有搜索专用 CSS 与搜索交互回归用例，改为桌面和手机检查搜索入口及弹窗均不存在。
+- 保留原有导航、文章目录、下载链接及其他页面功能。

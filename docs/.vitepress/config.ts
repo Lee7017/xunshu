@@ -52,13 +52,6 @@ export default defineConfig({
       // 更新日志使用独立侧边栏；版本列表由实际已发布的 Markdown 文件自动生成。
       '/changelog/': createChangelogSidebar()
     },
-    search: { provider: 'local', options: { disableDetailedView: true, translations: {
-      button: { buttonText: '搜索', buttonAriaLabel: '搜索文档' },
-      modal: {
-        displayDetails: '显示详情', resetButtonTitle: '清空', backButtonTitle: '关闭',
-        noResultsText: '未找到相关结果', footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' }
-      }
-    }}},
     outline: { level: [2, 3], label: '本页目录' },
     docFooter: { prev: '上一篇', next: '下一篇' },
     darkModeSwitchLabel: '外观',

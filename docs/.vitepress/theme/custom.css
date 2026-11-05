@@ -1,7 +1,7 @@
 /*
  * 迅树 MD · Monochrome Glass / 黑白玻璃拟态
  * 官网、下载、演示、文档、更新日志共用的视觉规范。
- * 保留 VitePress 原生搜索、侧边栏与响应式交互，不设置网站级 Footer。
+ * 保留 VitePress 原生侧边栏与响应式交互，不设置网站级 Footer。
  */
 :root {
   color-scheme: light;
@@ -89,7 +89,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   outline: 2px solid var(--xs-ink); outline-offset: 3px;
 }
 
-/* VitePress 导航、移动菜单和搜索 */
+/* VitePress 导航与移动菜单 */
 .VPNavBar {
   background: var(--vp-nav-bg-color) !important;
   border-bottom: 1px solid var(--xs-border);
@@ -105,13 +105,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .VPNavBarTitle .title { font-weight: 780; letter-spacing: -.035em; }
 .VPNavBarMenuLink, .VPNavBarMenuGroup .text { font-size: 13px; font-weight: 570; }
 .VPNavBarMenuLink.active { font-weight: 730; }
-.VPNavBarSearch .DocSearch-Button, .VPNavBarSearch .VPNavBarSearchButton,
-.VPNavBarSearch button {
-  border-radius: 13px;
-  border: 1px solid var(--xs-rule);
-  background: var(--xs-frost) !important;
-}
-.VPMenu, .VPNavScreen, .VPLocalSearchBox .shell {
+.VPMenu, .VPNavScreen {
   border: 1px solid var(--xs-rule);
   background: var(--xs-frost-strong) !important;
   -webkit-backdrop-filter: blur(28px) saturate(150%);
@@ -121,6 +115,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 .VPContent, .VPPage { background: transparent !important; }
 .VPPage { padding-bottom: 0 !important; }
+
+/* 禁用搜索：VitePress 默认主题仍可能渲染空的搜索占位容器。 */
+.VPNavBarSearch, .VPNavBar .content-body > .search {
+  display: none !important;
+  flex: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
 /* 文档侧边栏：只应用在 VitePress 原本会显示边栏的页面 */
 .VPSidebar {
@@ -519,7 +523,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 @supports not (backdrop-filter: blur(1px)) {
-  .VPNavBar, .VPSidebar, .VPMenu, .VPNavScreen, .VPLocalSearchBox .shell,
+  .VPNavBar, .VPSidebar, .VPMenu, .VPNavScreen,
   .preview-browser, .feature-visual, .download-card, .download-note,
   .demo-panel, .demo-rules>div, .screenshots-grid>section, .VPDoc .content-container {
     background-color: var(--vp-c-bg-elv) !important;
@@ -582,7 +586,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 /* 与 VitePress 原生状态和导航结构一致；不移动导航项和页面主体。 */
 .VPNavBarMenuLink, .VPNavBarMenuGroup .text, .VPSidebarItem .link,
 .VPNavScreenMenuLink, .VPDocFooter .prev-next a,
-.VPNavBarSearch button, .VPNavBarAppearance button {
+.VPNavBarAppearance button {
   transition: color var(--xs-motion-fast) var(--xs-motion-ease),
     background-color var(--xs-motion-fast) var(--xs-motion-ease),
     border-color var(--xs-motion-fast) var(--xs-motion-ease),
@@ -610,7 +614,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   .subpage-actions a:hover { text-decoration: underline; }
   .VPNavBarMenuLink:hover { box-shadow: inset 0 -2px 0 var(--xs-rule); }
   .VPNavBarMenuLink.active:hover { box-shadow: inset 0 -2px 0 var(--xs-ink); }
-  .VPNavBarSearch button:hover, .VPNavBarAppearance button:hover {
+  .VPNavBarAppearance button:hover {
     box-shadow: 0 0 0 2px var(--xs-rule);
   }
   .VPMenu a:hover { background: var(--xs-frost); }
@@ -618,262 +622,4 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 @media (prefers-reduced-motion: reduce) {
   .VPMenu { animation: none; }
-}
-
-
-
-/* 搜索重排：导航右侧的紧凑入口，保留 VitePress 原生全文搜索。
-   不对导航宽度使用绝对定位，避免多端溢出。 */
-@media (min-width: 768px) {
-  .VPNavBar .content-body > .menu { order: 1; }
-  .VPNavBar .content-body > .search {
-    order: 2;
-    flex: 0 0 auto;
-    flex-grow: 0;
-    padding-left: 0;
-    margin: 0 7px 0 12px;
-  }
-  .VPNavBar .content-body > .translations { order: 3; }
-  .VPNavBar .content-body > .appearance { order: 4; }
-  .VPNavBar .content-body > .social-links { order: 5; }
-  .VPNavBar .content-body > .extra { order: 6; }
-  .VPNavBar .content-body > .hamburger { order: 7; }
-
-  .VPNavBarSearch .DocSearch-Button {
-    display: flex;
-    width: 148px;
-    height: 36px;
-    padding: 0 10px 0 11px;
-    border: 1px solid var(--xs-rule);
-    border-radius: 10px;
-    background: var(--xs-frost);
-    box-shadow: none;
-    justify-content: space-between;
-    gap: 9px;
-    transition: background-color 140ms ease, border-color 140ms ease;
-  }
-  .VPNavBarSearch .DocSearch-Button-Placeholder {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--xs-muted);
-    white-space: nowrap;
-    padding-right: 0;
-    margin: 0;
-  }
-  .VPNavBarSearch .DocSearch-Button-Container {
-    min-width: 0;
-    display: flex;
-    flex: 1 1 auto;
-    gap: 7px;
-  }
-  .VPNavBarSearch .DocSearch-Search-Icon {
-    margin-right: 0;
-    width: 15px;
-    height: 15px;
-    flex: none;
-    color: var(--xs-muted);
-  }
-  .VPNavBarSearch .DocSearch-Button-Keys {
-    gap: 0;
-    flex: none;
-    margin-left: auto;
-  }
-  .VPNavBarSearch .DocSearch-Button-Key,
-  .VPNavBarSearch .DocSearch-Button-Key + .DocSearch-Button-Key {
-    border: none;
-    width: auto;
-    height: auto;
-    line-height: 1.2;
-    border-radius: 0;
-    padding: 0 2px;
-    box-shadow: none;
-    font-size: 11px;
-    color: var(--xs-muted);
-  }
-  .VPNavBarSearch .DocSearch-Button-Key:first-child::after {
-    font-size: 11px;
-    color: var(--xs-muted);
-  }
-  .VPNavBarSearch .DocSearch-Button:hover {
-    border-color: var(--vp-c-text-3);
-    background: var(--xs-frost-strong);
-  }
-}
-@media (min-width: 768px) and (max-width: 1080px) {
-  .VPNavBar .content-body > .search { margin-left: 7px; margin-right: 4px; }
-  .VPNavBarSearch .DocSearch-Button { width: 112px; }
-  .VPNavBarSearch .DocSearch-Button-Keys { display: none; }
-}
-@media (max-width: 767px) {
-  .VPNavBar .content-body > .search { flex: 0 0 auto; order: 1; }
-  .VPNavBar .content-body > .hamburger { order: 2; }
-  .VPNavBarSearch .DocSearch-Button {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    border-radius: 10px;
-    padding: 0;
-    background: transparent;
-    border: 1px solid transparent;
-    box-shadow: none;
-  }
-  .VPNavBarSearch .DocSearch-Button:hover,
-  .VPNavBarSearch .DocSearch-Button:focus-visible {
-    background: var(--xs-frost);
-    border-color: var(--xs-rule);
-  }
-  .VPNavBarSearch .DocSearch-Button-Container { justify-content: center; }
-  .VPNavBarSearch .DocSearch-Search-Icon { margin: 0; width: 18px; height: 18px; }
-}
-.VPNavBarSearch .DocSearch-Button:focus-visible {
-  outline: 2px solid var(--xs-ink);
-  outline-offset: 3px;
-}
-
-/* 原生 VitePress 搜索弹窗：减小体量，明确输入/结果/快捷键的层级。
-   scoped 模块的内部节点通过 .VPLocalSearchBox 后代选择器覆盖。 */
-.VPLocalSearchBox.VPLocalSearchBox .backdrop {
-  background: rgba(16, 19, 25, .42);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  transition: none;
-}
-.VPLocalSearchBox.VPLocalSearchBox .shell {
-  width: min(660px, calc(100vw - 40px));
-  margin: min(11vh, 100px) auto auto;
-  padding: 14px;
-  gap: 11px;
-  max-height: min(76vh, 760px);
-  border-radius: 15px;
-  border: 1px solid var(--xs-border);
-  background: var(--vp-c-bg-elv) !important;
-  box-shadow: 0 18px 60px rgba(14, 18, 26, .24);
-  overflow: hidden;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-bar {
-  min-height: 50px;
-  padding: 0 12px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 10px;
-  background: var(--vp-c-bg);
-  transition: border-color 140ms ease;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-bar:focus-within {
-  border-color: var(--vp-c-text-2);
-  box-shadow: 0 0 0 2px var(--vp-c-bg-alt);
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-input {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--vp-c-text-1);
-  padding: 11px 7px;
-  min-width: 0;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-input::placeholder { color: var(--vp-c-text-3); }
-.VPLocalSearchBox.VPLocalSearchBox .search-icon { margin: 0 9px 0 2px; }
-.VPLocalSearchBox.VPLocalSearchBox .search-actions button {
-  border-radius: 8px;
-  min-width: 36px;
-  min-height: 36px;
-  padding: 8px;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-actions button:not(:disabled):hover { background: var(--vp-c-bg-alt); }
-.VPLocalSearchBox.VPLocalSearchBox .results {
-  gap: 4px;
-  padding: 1px 1px 3px;
-  scrollbar-width: thin;
-}
-.VPLocalSearchBox.VPLocalSearchBox .result {
-  border: 1px solid transparent;
-  border-radius: 9px;
-  padding: 0;
-  min-height: 45px;
-  background: transparent;
-  transition: background-color 120ms ease, border-color 120ms ease;
-}
-.VPLocalSearchBox.VPLocalSearchBox .result > div { margin: 11px 12px; }
-.VPLocalSearchBox.VPLocalSearchBox .result.selected,
-.VPLocalSearchBox.VPLocalSearchBox .result:hover {
-  background: var(--vp-c-bg-alt);
-  border-color: var(--vp-c-divider);
-}
-.VPLocalSearchBox.VPLocalSearchBox .result .title.main { font-weight: 600; }
-.VPLocalSearchBox.VPLocalSearchBox .search-keyboard-shortcuts {
-  padding: 10px 7px 2px;
-  border-top: 1px solid var(--vp-c-divider);
-  color: var(--vp-c-text-3);
-  opacity: 1;
-  gap: 18px;
-  font-size: 11px;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-keyboard-shortcuts kbd {
-  background: var(--vp-c-bg-alt);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 5px;
-  min-width: 21px;
-  padding: 3px 5px;
-  box-shadow: none;
-}
-@media (max-width: 767px) {
-  .VPLocalSearchBox.VPLocalSearchBox .backdrop { display: none; }
-  .VPLocalSearchBox.VPLocalSearchBox .shell {
-    width: 100vw;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    border: 0;
-    border-radius: 0;
-    padding: calc(10px + env(safe-area-inset-top)) 12px 16px;
-    gap: 12px;
-    box-shadow: none;
-  }
-  .VPLocalSearchBox.VPLocalSearchBox .search-bar { min-height: 48px; padding: 0 4px; }
-  .VPLocalSearchBox.VPLocalSearchBox .search-input { font-size: 16px; padding: 10px 4px; }
-  .VPLocalSearchBox.VPLocalSearchBox .search-actions.before { display: flex; }
-  .VPLocalSearchBox.VPLocalSearchBox .search-actions button { min-width: 42px; min-height: 42px; }
-  .VPLocalSearchBox.VPLocalSearchBox .search-icon { display: none; }
-  .VPLocalSearchBox.VPLocalSearchBox .results { flex: 1; min-height: 0; }
-  .VPLocalSearchBox.VPLocalSearchBox .search-keyboard-shortcuts { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .VPLocalSearchBox.VPLocalSearchBox .result, .VPNavBarSearch .DocSearch-Button,
-  .VPLocalSearchBox.VPLocalSearchBox .search-bar { transition: none; }
-}
-
-
-/* 弹窗组件按需加载，使用更高优先级避免后加载的组件样式覆盖。 */
-.VPLocalSearchBox.VPLocalSearchBox {
-  --vp-local-search-highlight-bg: rgba(112, 121, 136, .15);
-  --vp-local-search-highlight-text: var(--vp-c-text-1);
-}
-.VPLocalSearchBox.VPLocalSearchBox input.search-input,
-.VPLocalSearchBox.VPLocalSearchBox input.search-input:focus,
-.VPLocalSearchBox.VPLocalSearchBox input.search-input:focus-visible {
-  outline: none !important;
-  outline-offset: 0 !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  background: transparent !important;
-}
-.VPLocalSearchBox.VPLocalSearchBox input.search-input::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  appearance: none;
-  display: none;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-bar {
-  box-shadow: none;
-}
-.VPLocalSearchBox.VPLocalSearchBox .search-bar:focus-within {
-  border-color: var(--vp-c-text-3);
-  box-shadow: 0 0 0 2px var(--vp-c-divider);
-}
-.VPLocalSearchBox.VPLocalSearchBox .result.selected {
-  background: var(--vp-c-bg-alt);
-  border-color: var(--vp-c-divider);
-}
-.VPLocalSearchBox.VPLocalSearchBox .result .titles mark {
-  font-weight: 680;
-  background: rgba(112, 121, 136, .15);
-  color: var(--vp-c-text-1);
-  padding: 0 2px;
 }
