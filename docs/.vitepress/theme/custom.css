@@ -154,6 +154,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   padding: 18px;
   box-shadow: inset 0 1px var(--xs-glow);
 }
+/* 目录靠近文末时仍可跳转：VitePress 1.6.4 在滚动到底部时会强制选中最后一项。
+   桌面端右侧目录可见时，在正文卡片下方预留滚动空间，让倒数第二项
+   也能滚动到标题位置。只增加正文外部空间，不改变卡片高度或活动标记逻辑。 */
+@media (min-width: 1280px) {
+  .VPDoc.has-aside > .container > .content {
+    padding-bottom: 360px;
+  }
+}
+
 .VPDocAsideOutline .content {
   position: relative;
   border: 0;
