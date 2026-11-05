@@ -224,7 +224,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .xs-button {
   min-height: 46px; padding: 0 19px;
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-  border-radius: 13px; font-size: 13px; font-weight: 710; line-height: 1.25;
+  border-radius: 12px; font-size: 13px; font-weight: 710; line-height: 1.25;
   white-space: nowrap; text-decoration: none !important;
   transition: background-color 140ms cubic-bezier(.4,1,.6,1), border-color 140ms cubic-bezier(.4,1,.6,1), color 140ms cubic-bezier(.4,1,.6,1), box-shadow 150ms cubic-bezier(.4,1,.6,1), transform 100ms ease-out;
 }
@@ -238,14 +238,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .dark .xs-button.primary { background: #f4f5f7; color: #15171b; border-color: #f4f5f7; }
 .dark .xs-button.primary:hover { background: #dce0e5; color: #15171b; }
 .xs-button.secondary {
-  color: var(--xs-ink); background: var(--xs-frost-strong);
-  border: 1px solid var(--xs-border);
-  box-shadow: 0 8px 25px rgba(26,31,42,.055), inset 0 1px var(--xs-glow);
+  color: var(--xs-ink);
+  background: var(--xs-frost-strong);
+  border: 1px solid var(--xs-rule);
+  box-shadow: inset 0 1px var(--xs-glow);
   -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
 }
-.xs-button.secondary:hover { color: var(--xs-ink); background: var(--xs-card); box-shadow: var(--xs-shadow); }
-.xs-button.plain { color: var(--xs-ink); border: 1px solid transparent; background: transparent; }
-.xs-button.plain:hover { background: var(--xs-frost); color: var(--xs-ink); }
+.xs-button.secondary:hover {
+  color: var(--xs-ink);
+  background: var(--xs-card);
+  border-color: var(--vp-c-text-3);
+  box-shadow: 0 6px 16px rgba(20, 24, 34, .07);
+}
 .xs-button.disabled, .xs-button.disabled:hover {
   transform: none; cursor: not-allowed; color: var(--xs-muted);
   border: 1px solid var(--xs-rule); background: var(--xs-soft); box-shadow: none;
@@ -273,7 +277,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .dark .landing-hero::before { background: radial-gradient(ellipse, rgba(95,99,111,.18) 0%, transparent 72%); }
 .landing-hero h1 { font-size: clamp(40px, 5.7vw, 72px); font-weight: 800; letter-spacing: -.075em; line-height: 1.13; text-wrap: balance; }
 .hero-lead { font-size: 16px; line-height: 2; max-width: 730px; color: var(--xs-muted); }
-.hero-actions { display: flex; gap: 13px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.hero-actions { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.hero-actions .xs-button { min-width: 158px; }
+.xs-button > svg { flex-shrink: 0; }
 .platform-caption, .figure-caption { color: var(--xs-muted); font-size: 11px; }
 .platform-caption { margin-top: 8px !important; }
 .preview-section { padding: 18px 30px 98px; position: relative; }
@@ -285,7 +291,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 .preview-browser {
   position: relative; z-index: 1; overflow: hidden;
-  border: 1px solid var(--xs-border); border-radius: var(--xs-radius);
+  border: 1px solid var(--xs-border); border-radius: 20px;
   background: var(--xs-frost-strong); box-shadow: var(--xs-shadow-hover), inset 0 1px var(--xs-glow);
   -webkit-backdrop-filter: blur(28px) saturate(135%); backdrop-filter: blur(28px) saturate(135%);
 }
@@ -338,7 +344,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   position: relative; isolation: isolate; overflow: hidden;
   min-height: 357px; padding: 32px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border: 1px solid var(--xs-border); border-radius: 25px;
+  border: 1px solid var(--xs-border); border-radius: 20px;
   background: var(--xs-frost);
   box-shadow: var(--xs-shadow), inset 0 1px var(--xs-glow);
   -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
@@ -389,9 +395,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .super-cards span, .super-document small { font-size: 11px; color: var(--xs-muted); }
 .formats { display: flex; flex-wrap: wrap; gap: 7px; }
 .formats span { display: inline-flex; align-items: center; gap: 5px; padding: 8px 10px; border-radius: 9px; color: var(--xs-muted); background: var(--xs-soft); border: 1px solid var(--xs-border); font-size: 11px; }
-.final-cta { text-align: center; padding: 102px 20px 116px; border-top: 1px solid var(--xs-rule); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.final-cta { text-align: center; padding: 84px 20px 96px; border-top: 1px solid var(--xs-rule); display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .final-cta h2 { font-size: clamp(31px,3.6vw,46px); font-weight: 780; }
-.final-cta p { color: var(--xs-muted); margin-bottom: 6px; }
+.final-cta p { color: var(--xs-muted); margin-bottom: 6px; font-size: 15px; line-height: 1.9; }
+.final-cta .hero-actions { margin-top: 6px; }
 .mobile-only { display: none; }
 
 /* 下载、在线体验、截图 */
@@ -407,7 +414,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   backdrop-filter: blur(22px) saturate(145%);
 }
 .download-card {
-  border-radius: 22px; padding: 30px;
+  display: flex; flex-direction: column;
+  border-radius: 20px; padding: 30px;
 }
 
 
@@ -417,16 +425,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .tag { font-size: 11px; white-space: nowrap; border: 1px solid var(--xs-rule); padding: 5px 10px; border-radius: 999px; color: var(--xs-muted); background: var(--xs-soft); }
 .tag.live { color: var(--xs-ink); background: var(--xs-frost-strong); border-color: var(--xs-ink); }
 .download-card p { margin: 10px 0 16px; color: var(--xs-muted); font-size: 13px; line-height: 1.75; }
-.download-meta { color: var(--xs-muted); font-size: 11px; margin-bottom: 25px; }
-.download-action { width: 100%; min-height: 43px; }
-.download-note { max-width: 910px; margin: 24px auto 0; border-radius: 19px; padding: 27px; display: flex; gap: 16px; align-items: flex-start; }
+.download-meta { color: var(--xs-muted); font-size: 11px; margin-top: auto; margin-bottom: 18px; }
+.download-action { width: 100%; min-height: 46px; }
+.download-note { max-width: 910px; margin: 24px auto 0; border-radius: 20px; padding: 27px; display: flex; gap: 16px; align-items: flex-start; }
+.download-note > div { flex: 1; min-width: 0; }
+.test-download-note { margin-bottom: 0; }
+.download-test-action { margin-top: 16px; min-width: 185px; }
 .download-note strong { font-size: 14px; }
 .download-note p { margin-top: 9px; color: var(--xs-muted); font-size: 12px; line-height: 1.85; }
 .download-note .text-link { margin-top: 10px; }
 .download-support { max-width: 910px; display: flex; align-items: flex-start; gap: 10px; margin: 24px auto; color: var(--xs-muted); font-size: 12px; }
-.subpage-actions { display: flex; justify-content: center; gap: 25px; padding: 15px; font-size: 13px; }
-.subpage-actions a { color: var(--xs-ink); }
-.demo-panel { border-radius: 23px; overflow: hidden; }
+.subpage-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 14px 0; }
+.subpage-actions .xs-button { min-width: 174px; }
+.demo-panel { border-radius: 20px; overflow: hidden; }
 .demo-panel-top { display: flex; align-items: center; justify-content: space-between; height: 57px; padding: 0 24px; background: var(--xs-frost); border-bottom: 1px solid var(--xs-rule); }
 .demo-panel-top>span:first-child { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 720; }
 .demo-panel-body { text-align: center; display: flex; align-items: center; flex-direction: column; gap: 17px; max-width: 650px; margin: 0 auto; padding: 72px 30px 83px; }
@@ -440,7 +451,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .demo-rules h3 { font-size: 14px; font-weight: 730; margin: 16px 0 9px; }
 .demo-rules p { color: var(--xs-muted); font-size: 12px; line-height: 1.85; }
 .screenshots-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 19px; margin-bottom: 25px; }
-.screenshots-grid>section { min-width: 0; padding: 12px 12px 20px; border-radius: 19px; }
+.screenshots-grid>section { min-width: 0; padding: 12px 12px 20px; border-radius: 20px; }
 .screenshot-placeholder { height: 240px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; border: 1px dashed var(--xs-rule); background: var(--xs-soft); border-radius: 13px; color: var(--xs-muted); }
 .screenshot-placeholder span { font-size: 12px; }
 .screenshots-grid h2 { font-size: 17px; margin: 17px 6px 8px; }
@@ -492,12 +503,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   .feature-copy { max-width: none; }
   .feature-copy h2 { font-size: 29px; }
   .feature-copy>p:not(.feature-index) { font-size: 14px; }
-  .feature-visual { min-height: 285px; padding: 18px; border-radius: 19px; }
+  .feature-visual { min-height: 285px; padding: 18px; border-radius: 16px; }
   .sync-device { min-height: 128px; gap: 10px; }
   .sync-device svg { width: 30px; }
   .sync-connection { margin-top: 19px; }
   .visual-caption { font-size: 10px; }
-  .final-cta { padding: 71px 18px 91px; }
+  .final-cta { padding: 64px 18px 76px; }
+  .final-cta p { font-size: 13px; }
+  .hero-actions { width: min(100%, 320px); flex-direction: column; gap: 10px; }
+  .hero-actions .xs-button { width: 100%; min-width: 0; }
+  .subpage-actions { width: min(100%, 360px); margin: 0 auto; flex-direction: column; }
+  .subpage-actions .xs-button { width: 100%; min-width: 0; }
+  .download-test-action { width: 100%; min-width: 0; }
   .page-design { padding: 43px 17px 75px; }
   .page-intro { margin-bottom: 34px; }
   .page-intro p { font-size: 13px; }
@@ -572,15 +589,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .text-link svg {
   transition: transform var(--xs-motion-standard) var(--xs-motion-ease);
 }
-.text-link:focus-visible, .subpage-actions a:focus-visible {
+.text-link:focus-visible {
   outline: 2px solid var(--xs-ink);
   outline-offset: 4px;
   border-radius: 3px;
-}
-.subpage-actions a {
-  text-decoration-color: transparent;
-  text-underline-offset: 4px;
-  transition: text-decoration-color var(--xs-motion-fast) ease;
 }
 
 /* 与 VitePress 原生状态和导航结构一致；不移动导航项和页面主体。 */
@@ -611,7 +623,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 @media (hover: hover) and (pointer: fine) {
   .text-link:hover svg { transform: translateX(3px); }
-  .subpage-actions a:hover { text-decoration: underline; }
   .VPNavBarMenuLink:hover { box-shadow: inset 0 -2px 0 var(--xs-rule); }
   .VPNavBarMenuLink.active:hover { box-shadow: inset 0 -2px 0 var(--xs-ink); }
   .VPNavBarAppearance button:hover {

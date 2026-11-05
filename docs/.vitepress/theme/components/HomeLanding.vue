@@ -5,7 +5,7 @@ import {
   NotebookPen, HardDrive, Monitor, Tablet, Smartphone, Network, FileAudio,
   FileVideo, FileSpreadsheet, Presentation, FileType, PencilLine, Check,
   ChevronDown, ChevronRight, PanelLeft, MoreHorizontal, CheckSquare,
-  Circle, FilePlus2, FolderPlus, Layers3, Maximize2, Square
+  Circle, FilePlus2, FolderPlus, Layers3, Maximize2, Square, BookOpen
 } from 'lucide-vue-next'
 </script>
 
@@ -143,7 +143,7 @@ import {
       <div class="hero-actions">
         <a class="xs-button primary" :href="withBase('/download/')"><Download :size="17"/>软件下载</a>
         <a class="xs-button secondary" :href="withBase('/demo/')"><Play :size="17"/>在线体验</a>
-        <a class="xs-button plain" :href="withBase('/guide/')">阅读教程 <ArrowRight :size="17"/></a>
+        <a class="xs-button secondary" :href="withBase('/guide/')"><BookOpen :size="17"/>阅读教程</a>
       </div>
     </section>
   </main>

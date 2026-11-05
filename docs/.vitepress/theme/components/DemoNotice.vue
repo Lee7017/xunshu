@@ -4,7 +4,7 @@ import { MonitorPlay, HardDrive, RefreshCcw, ShieldOff, ArrowRight, NotebookPen,
 </script>
 <template>
   <main class="page-design demo-page section-width">
-    <div class="page-intro"><span class="eyebrow">Browser Demo</span><h1>在线体验迅树 MD</h1><p>正式部署后，这里将加载迅树 MD 现有的 React + Vditor Web Mock，而不是另做一套简化版编辑器。</p></div>
+    <div class="page-intro"><span class="eyebrow">浏览器体验</span><h1>在线体验迅树 MD</h1><p>正式部署后，这里将加载迅树 MD 现有的 React + Vditor Web Mock，而不是另做一套简化版编辑器。</p></div>
     <div class="demo-panel">
       <div class="demo-panel-top"><span><MonitorPlay :size="19"/> Web Mock 接入位置</span><span class="tag">未接入</span></div>
       <div class="demo-panel-body">
