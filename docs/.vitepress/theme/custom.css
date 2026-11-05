@@ -202,15 +202,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   border-radius: 13px; font-size: 13px; font-weight: 710; line-height: 1.25;
   white-space: nowrap; text-decoration: none !important;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  transition: background-color 140ms cubic-bezier(.4,1,.6,1), border-color 140ms cubic-bezier(.4,1,.6,1), color 140ms cubic-bezier(.4,1,.6,1), box-shadow 150ms cubic-bezier(.4,1,.6,1), transform 100ms ease-out;
 }
-.xs-button:hover { transform: translateY(-2px); }
-.xs-button:active { transform: translateY(0); }
+.xs-button:hover { transform: none; }
+.xs-button:active { transform: translateY(1px); }
 .xs-button.primary {
   background: #1b1d21; border: 1px solid rgba(0,0,0,.35); color: #fff;
   box-shadow: inset 0 1px rgba(255,255,255,.22), 0 10px 25px rgba(17,19,23,.13);
 }
-.xs-button.primary:hover { background: #343840; color: #fff; box-shadow: 0 15px 30px rgba(17,19,23,.22); }
+.xs-button.primary:hover { background: #2b2e35; color: #fff; box-shadow: inset 0 1px rgba(255,255,255,.18), 0 9px 21px rgba(17,19,23,.15); }
 .dark .xs-button.primary { background: #f4f5f7; color: #15171b; border-color: #f4f5f7; }
 .dark .xs-button.primary:hover { background: #dce0e5; color: #15171b; }
 .xs-button.secondary {
@@ -318,8 +318,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   background: var(--xs-frost);
   box-shadow: var(--xs-shadow), inset 0 1px var(--xs-glow);
   -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
-  transition: transform .28s ease, box-shadow .28s ease;
 }
+
 .feature-visual::before {
   content: ''; position: absolute; z-index: -1; pointer-events: none;
   width: 350px; height: 350px; right: -135px; top: -180px; border-radius: 50%;
@@ -330,7 +330,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   width: 340px; height: 340px; left: -150px; bottom: -210px; border: 1px solid var(--xs-border); border-radius: 50%;
   box-shadow: 0 0 0 32px rgba(255,255,255,.045), 0 0 0 72px rgba(255,255,255,.045);
 }
-.feature-visual:hover { transform: translateY(-3px); box-shadow: var(--xs-shadow-hover); }
+
 .sync-devices { display: grid; grid-template-columns: repeat(3,1fr); width: 100%; gap: 12px; }
 .sync-device {
   min-height: 174px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
@@ -384,9 +384,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 .download-card {
   border-radius: 22px; padding: 30px;
-  transition: transform .22s ease, box-shadow .22s ease;
 }
-.download-card:hover { transform: translateY(-3px); box-shadow: var(--xs-shadow-hover); }
+
+
 .platform-icon { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 23px; border-radius: 16px; background: var(--xs-frost-strong); border: 1px solid var(--xs-border); color: var(--xs-ink); box-shadow: inset 0 1px var(--xs-glow); }
 .download-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .download-card h2 { font-size: 22px; font-weight: 770; }
@@ -485,7 +485,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   .demo-panel-body h2 { font-size: 20px; }
   .screenshots-grid { grid-template-columns: 1fr; }
   .screenshot-placeholder { height: 220px; }
-  .xs-button:hover, .feature-visual:hover, .download-card:hover { transform: none; }
+
 }
 @media (max-width: 380px) {
   .sync-devices { gap: 5px; }
@@ -520,247 +520,82 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 }
 
 
-/* --------------------------------------------------------------------------
-   全站交互增强：触控反馈、滚动出现、导航与黑白玻璃质感
-   不影响链接指向、发布状态或 VitePress 默认键盘交互。
-   -------------------------------------------------------------------------- */
+/* 交互规范：高频状态反馈 100–150ms；仅状态变化需要动画。
+   依据：Atlassian Design System / Motion、Apple HIG / Motion。
+   页面内容不做滚动入场和整页位移；不可点击的展示卡片不漂浮。 */
 :root {
-  --xs-motion-ease: cubic-bezier(.22, 1, .36, 1);
-  --xs-motion-snap: cubic-bezier(.2, .85, .25, 1);
-  --xs-interactive-ring: 0 0 0 3px rgba(80, 88, 101, .16);
+  --xs-motion-fast: 140ms;
+  --xs-motion-standard: 180ms;
+  --xs-motion-ease: cubic-bezier(.4, 1, .6, 1);
 }
-.dark { --xs-interactive-ring: 0 0 0 3px rgba(211, 217, 226, .20); }
 
-/* 链接按钮：有明确的悬浮、按下与键盘聚焦状态 */
 .xs-button {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
-  transition: transform .3s var(--xs-motion-snap), box-shadow .3s var(--xs-motion-ease),
-    background-color .25s ease, border-color .25s ease, color .25s ease;
+  touch-action: manipulation;
 }
-.xs-button:not(.disabled) { cursor: pointer; }
-.xs-button:not(.disabled)::before {
-  content: '';
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-  inset: -85% -55%;
-  transform: translateX(-115%) rotate(19deg);
-  background: linear-gradient(100deg, transparent 38%, rgba(255,255,255,.17) 49%,
-    rgba(255,255,255,.04) 55%, transparent 64%);
-  transition: transform .66s var(--xs-motion-ease);
-}
-.xs-button.secondary::before, .xs-button.plain::before {
-  background: linear-gradient(100deg, transparent 38%, rgba(55,61,73,.055) 49%, transparent 64%);
-}
-.xs-button:not(.disabled):active {
-  transform: translateY(1px) scale(.965) !important;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,.13) !important;
-  transition-duration: .11s;
+.xs-button.disabled, .xs-button.disabled:hover {
+  cursor: not-allowed;
+  transform: none;
 }
 .xs-button:focus-visible {
   outline: 2px solid var(--xs-ink);
+  outline-offset: 3px;
+}
+.text-link {
+  transition: color var(--xs-motion-fast) var(--xs-motion-ease),
+    border-color var(--xs-motion-fast) var(--xs-motion-ease);
+}
+.text-link svg {
+  transition: transform var(--xs-motion-standard) var(--xs-motion-ease);
+}
+.text-link:focus-visible, .subpage-actions a:focus-visible {
+  outline: 2px solid var(--xs-ink);
   outline-offset: 4px;
-  box-shadow: var(--xs-interactive-ring);
+  border-radius: 3px;
 }
-.xs-button.disabled { pointer-events: none; }
-/* 点击反馈，手指或鼠标按下时由 Vue 客户端添加，之后自动清理 */
-.xs-click-wave {
-  position: absolute;
-  pointer-events: none;
-  z-index: 2;
-  border-radius: 50%;
-  background: rgba(255,255,255,.28);
-  transform: scale(0);
-  opacity: .8;
-  animation: xs-click-wave .62s ease-out forwards;
+.subpage-actions a {
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--xs-motion-fast) ease;
 }
-.xs-button.secondary .xs-click-wave, .xs-button.plain .xs-click-wave { background: rgba(48,55,67,.13); }
-@keyframes xs-click-wave { 65% { opacity: .34; } 100% { transform: scale(1); opacity: 0; } }
 
-.text-link, .subpage-actions a, .vp-doc a {
-  transition: color .22s ease, border-color .22s ease, opacity .22s ease, text-decoration-color .22s ease;
+/* 与 VitePress 原生状态和导航结构一致；不移动导航项和页面主体。 */
+.VPNavBarMenuLink, .VPNavBarMenuGroup .text, .VPSidebarItem .link,
+.VPNavScreenMenuLink, .VPDocFooter .prev-next a,
+.VPNavBarSearch button, .VPNavBarAppearance button {
+  transition: color var(--xs-motion-fast) var(--xs-motion-ease),
+    background-color var(--xs-motion-fast) var(--xs-motion-ease),
+    border-color var(--xs-motion-fast) var(--xs-motion-ease),
+    box-shadow var(--xs-motion-standard) var(--xs-motion-ease);
 }
-.text-link { position: relative; }
-.text-link svg, .xs-button svg {
-  flex: none;
-  transition: transform .3s var(--xs-motion-ease);
+.VPNavBarMenuLink.active {
+  box-shadow: inset 0 -2px 0 var(--xs-ink);
 }
-.text-link:active { opacity: .6; }
-.subpage-actions a { text-underline-offset: 5px; }
-
-/* VitePress 顶部导航、搜索、下拉菜单 */
-.VPNavBarMenuLink,
-.VPNavBarMenuGroup,
-.VPNavBarTitle .title,
-.VPNavScreenMenuLink,
-.VPSidebarItem .link {
-  transition: color .24s ease, background-color .24s ease,
-    box-shadow .24s var(--xs-motion-ease), transform .24s var(--xs-motion-ease);
+.VPSidebarItem .link:focus-visible,
+.VPNavBarMenuLink:focus-visible,
+.VPDocFooter .prev-next a:focus-visible {
+  outline: 2px solid var(--xs-ink);
+  outline-offset: 2px;
 }
-.VPNavBarMenuLink { border-radius: 9px; }
-.VPNavBarMenuLink.active { box-shadow: inset 0 -2px 0 var(--xs-ink); }
-.VPNavBarTitle .title { border-radius: 10px; }
-.VPNavBarSearch button,
-.VPNavBarAppearance button,
-.VPNavBarHamburger,
-.VPNavScreen button {
-  transition: background-color .22s ease, border-color .22s ease,
-    box-shadow .22s var(--xs-motion-ease), transform .22s var(--xs-motion-ease);
-}
-.VPNavBarSearch button:active,
-.VPNavBarAppearance button:active,
-.VPNavScreen button:active { transform: scale(.96); }
 .VPMenu {
   transform-origin: top center;
-  animation: xs-menu-appear .23s var(--xs-motion-ease) both;
+  animation: xs-dropdown-open 150ms cubic-bezier(0,0,.2,1) both;
 }
-@keyframes xs-menu-appear {
-  from { opacity: 0; transform: translateY(-7px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.VPMenu a, .VPLocalSearchBox a, .VPDocFooter .prev-next a {
-  transition: transform .22s var(--xs-motion-ease), background-color .22s ease,
-    box-shadow .22s var(--xs-motion-ease), border-color .22s ease;
-}
-.VPSidebarItem .link:active, .VPMenu a:active { transform: scale(.985); }
-
-/* 首页：图标、背景与屏幕演示均有轻量动效 */
-.hero-app-logo {
-  transition: transform .4s var(--xs-motion-ease), box-shadow .4s var(--xs-motion-ease);
-  animation: xs-logo-entrance .75s var(--xs-motion-ease) both;
-}
-.landing-hero .eyebrow { animation: xs-hero-enter .7s .10s var(--xs-motion-ease) both; }
-.landing-hero h1 { animation: xs-hero-enter .78s .17s var(--xs-motion-ease) both; }
-.landing-hero .hero-lead { animation: xs-hero-enter .78s .27s var(--xs-motion-ease) both; }
-.landing-hero .hero-actions { animation: xs-hero-enter .78s .35s var(--xs-motion-ease) both; }
-.landing-hero .platform-caption { animation: xs-hero-enter .75s .43s var(--xs-motion-ease) both; }
-.landing-hero .status-dot {
-  animation: xs-status-breathe 2.8s ease-in-out infinite;
-  transform-origin: center;
-}
-@keyframes xs-logo-entrance {
-  from { opacity: 0; transform: translateY(16px) scale(.90); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes xs-hero-enter {
-  from { opacity: 0; transform: translateY(17px); }
+@keyframes xs-dropdown-open {
+  from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes xs-status-breathe {
-  0%, 100% { opacity: .6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.27); }
-}
-.preview-browser {
-  transition: transform .42s var(--xs-motion-ease), box-shadow .42s var(--xs-motion-ease),
-    border-color .42s ease;
-}
-.preview-file-row, .tree-line, .super-cards>div, .formats span,
-.sync-device, .preview-browser .drawing-card {
-  transition: transform .28s var(--xs-motion-ease), background-color .25s ease,
-    box-shadow .3s var(--xs-motion-ease), border-color .3s ease, color .25s ease;
-}
-.preview-files .preview-file-row.current { box-shadow: inset 3px 0 0 var(--xs-ink); }
-.feature-visual, .download-card, .demo-panel, .demo-rules>div,
-.screenshots-grid>section, .download-note, .tree-card, .super-document {
-  transition: transform .36s var(--xs-motion-ease), box-shadow .38s var(--xs-motion-ease),
-    background-color .3s ease, border-color .3s ease;
-}
-.platform-icon {
-  transition: transform .36s var(--xs-motion-ease), box-shadow .3s ease,
-    background-color .3s ease;
-}
-.screenshot-placeholder, .demo-panel-body>svg {
-  transition: transform .36s var(--xs-motion-ease), background-color .3s ease;
-}
-
-/* 页面内容出现：只在元素还位于视口下方时隐藏，进入时恢复 */
-@media (prefers-reduced-motion: no-preference) {
-  .motion-reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity .74s var(--xs-motion-ease),
-      transform .82s var(--xs-motion-ease);
-    transition-delay: var(--motion-delay, 0ms);
-  }
-  .motion-reveal.is-revealed { opacity: 1; transform: translateY(0); }
-  .VPContent.motion-route-enter {
-    animation: xs-page-appear .42s var(--xs-motion-ease) both;
-  }
-  @keyframes xs-page-appear {
-    from { opacity: .35; transform: translateY(7px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-}
-
-/* 桌面端悬浮：不把触摸屏的点按变成需要二次操作的 hover */
 @media (hover: hover) and (pointer: fine) {
-  .xs-button:not(.disabled):hover { transform: translateY(-4px) scale(1.015); }
-  .xs-button:not(.disabled):hover::before { transform: translateX(115%) rotate(19deg); }
-  .xs-button.primary:hover {
-    box-shadow: 0 16px 35px rgba(17,19,23,.19), inset 0 1px rgba(255,255,255,.22);
-  }
-  .xs-button.secondary:hover { box-shadow: 0 16px 37px rgba(25,30,43,.11), inset 0 1px var(--xs-glow); }
-  .xs-button:hover svg:last-child,
-  .text-link:hover svg { transform: translateX(4px); }
-  .xs-button:has(svg:first-child):hover svg:first-child:not(:last-child) { transform: translateY(2px); }
-  .text-link:hover { opacity: .79; }
+  .text-link:hover svg { transform: translateX(3px); }
   .subpage-actions a:hover { text-decoration: underline; }
-  .VPNavBarMenuLink:hover, .VPNavBarMenuGroup:hover, .VPNavBarTitle .title:hover {
-    background: var(--xs-frost);
-    transform: translateY(-1px);
+  .VPNavBarMenuLink:hover { box-shadow: inset 0 -2px 0 var(--xs-rule); }
+  .VPNavBarMenuLink.active:hover { box-shadow: inset 0 -2px 0 var(--xs-ink); }
+  .VPNavBarSearch button:hover, .VPNavBarAppearance button:hover {
+    box-shadow: 0 0 0 2px var(--xs-rule);
   }
-  .VPNavBarSearch button:hover, .VPNavBarAppearance button:hover, .VPNavScreen button:hover {
-    box-shadow: var(--xs-interactive-ring);
-    transform: translateY(-1px);
-  }
-  .VPMenu a:hover { background: var(--xs-frost); transform: translateX(3px); }
-  .VPSidebarItem .link:hover { transform: translateX(3px); }
-  .VPDocFooter .prev-next a:hover {
-    transform: translateY(-3px);
-    border-color: var(--xs-rule);
-    box-shadow: var(--xs-shadow);
-  }
-  .hero-app-logo:hover {
-    transform: translateY(-5px) rotate(-2deg) scale(1.04);
-    box-shadow: 0 24px 52px rgba(15,17,22,.14), 0 0 0 1px rgba(25,29,35,.07);
-  }
-  .preview-browser:hover { transform: translateY(-5px); box-shadow: var(--xs-shadow-hover); }
-  .preview-file-row:hover, .tree-line:not(.selected):hover {
-    background: var(--xs-soft);
-    transform: translateX(4px);
-  }
-  .sync-device:hover {
-    transform: translateY(-5px);
-    background: var(--xs-card);
-    box-shadow: 0 17px 32px rgba(28,32,42,.10), inset 0 1px var(--xs-glow);
-  }
-  .super-cards>div:hover, .formats span:hover {
-    transform: translateY(-4px);
-    background: var(--xs-card);
-    box-shadow: 0 9px 24px rgba(28,32,42,.07);
-  }
-  .feature-visual:hover { transform: translateY(-7px); box-shadow: var(--xs-shadow-hover); }
-  .download-card:hover, .demo-panel:hover, .demo-rules>div:hover,
-  .screenshots-grid>section:hover, .download-note:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--xs-shadow-hover);
-  }
-  .download-card:hover .platform-icon {
-    transform: translateY(-3px) rotate(-5deg);
-    box-shadow: 0 11px 28px rgba(26,29,35,.11);
-  }
-  .demo-panel:hover .demo-panel-body>svg { transform: translateY(-5px) scale(1.05); }
-  .screenshots-grid>section:hover .screenshot-placeholder { background: var(--xs-frost); }
-}
-@media (hover: none), (pointer: coarse) {
-  .xs-button:hover, .feature-visual:hover, .download-card:hover,
-  .preview-browser:hover, .hero-app-logo:hover { transform: none; }
+  .VPMenu a:hover { background: var(--xs-frost); }
+  .VPSidebarItem .link:hover { background: var(--xs-frost-strong); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .motion-reveal { opacity: 1 !important; transform: none !important; }
-  .VPContent.motion-route-enter { animation: none !important; }
-  .xs-click-wave { display: none; }
+  .VPMenu { animation: none; }
 }
