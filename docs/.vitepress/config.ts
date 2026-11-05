@@ -53,7 +53,7 @@ export default defineConfig({
       '/changelog/': createChangelogSidebar()
     },
     search: { provider: 'local', options: { translations: {
-      button: { buttonText: '搜索文档', buttonAriaLabel: '搜索文档' },
+      button: { buttonText: '搜索', buttonAriaLabel: '搜索文档' },
       modal: {
         displayDetails: '显示详情', resetButtonTitle: '清空', backButtonTitle: '关闭',
         noResultsText: '未找到相关结果', footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' }

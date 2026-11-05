@@ -80,6 +80,42 @@ for (const c of [
     await capture(page, 'downloads-hover-desktop.png')
   }
   if (c.label === 'home-desktop') {
+    // 搜索放在导航链接后面；点击/快捷键都使用 VitePress 原生弹窗。
+    const search = page.locator('.VPNavBarSearch .DocSearch-Button').first()
+    const about = page.locator('.VPNavBarMenu').getByRole('link', { name: '关于', exact: true })
+    const positions = await page.evaluate(() => {
+      const s = document.querySelector('.VPNavBarSearch .DocSearch-Button')?.getBoundingClientRect()
+      const a = [...document.querySelectorAll('.VPNavBarMenu a')].find(x => x.textContent?.trim() === '关于')?.getBoundingClientRect()
+      return s && a ? { searchLeft: s.left, searchWidth: s.width, aboutRight: a.right } : null
+    })
+    if (!positions || positions.searchLeft < positions.aboutRight - 1) failures.push('desktop: search button should be to the right of 关于')
+    await capture(page, 'search-navbar-desktop.png', false)
+    await search.click()
+    await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
+    await page.locator('.VPLocalSearchBox .search-input').fill('Markdown')
+    await page.waitForTimeout(650)
+    const matches = await page.locator('.VPLocalSearchBox .result').count()
+    if (matches === 0) failures.push('desktop: Markdown search returned no results')
+    await capture(page, 'search-dialog-desktop.png', false)
+    await page.keyboard.press('Escape')
+    await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
+    findings.push({ test: 'search-desktop', positions, matches, closedByEscape: true })
+  }
+  if (c.label === 'home-mobile') {
+    const search = page.locator('.VPNavBarSearch .DocSearch-Button').first()
+    await search.click()
+    await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
+    await page.locator('.VPLocalSearchBox .search-input').fill('同步')
+    await page.waitForTimeout(650)
+    const matches = await page.locator('.VPLocalSearchBox .result').count()
+    if (matches === 0) failures.push('mobile: search 同步 returned no results')
+    await capture(page, 'search-dialog-mobile.png', false)
+    const back = page.locator('.VPLocalSearchBox .back-button')
+    await back.click()
+    await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
+    findings.push({ test: 'search-mobile', matches, closedByBack: true })
+  }
+  if (c.label === 'home-desktop') {
     // “关于”必须是链接，不能是悬浮即展开的下拉按钮。
     const about = page.locator('.VPNavBarMenu').getByRole('link', { name: '关于', exact: true })
     if (await about.count() !== 1) failures.push('desktop: 关于 is not a single link')
@@ -109,6 +145,7 @@ for (const c of [
       await capture(page, 'about-nav-mobile-open.png', false)
       await link.click()
       await page.waitForURL(/\/xunshu\/about\/?(?:\.html)?$/, { timeout: 6000 })
+      await page.waitForFunction(() => document.querySelector('h1')?.textContent?.includes('关于迅树 MD'), null, { timeout: 8000 })
       const heading = await page.locator('h1').first().textContent()
       if (!heading?.includes('关于迅树 MD')) failures.push('mobile: about did not navigate')
       await capture(page, 'about-page-mobile.png')
