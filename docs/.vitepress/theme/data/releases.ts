@@ -21,4 +21,7 @@ export const releasePlatforms: ReleasePlatform[] = [
 ]
 
 // 可填写自己的 Releases 页面网址；不要放占位的 OWNER/REPO URL
-export const releasesPageUrl = ''
+export const releasesPageUrl = 'https://github.com/Lee7017/xunshu/releases'
+
+// 仅用于验证 GitHub Pages 官网到 GitHub Releases 的真实下载流程，不是软件安装包。
+export const testDownloadUrl = 'https://github.com/Lee7017/xunshu/releases/download/test-download-v1/xunshu-test-download.png'

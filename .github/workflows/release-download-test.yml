@@ -1,0 +1,35 @@
+name: Publish test image to GitHub Releases
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/release-download-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish-test-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout website assets
+        uses: actions/checkout@v4
+      - name: Publish test PNG (not an installer)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # 复用官网现有的软件图标 PNG，不上传任何应用程序源码。
+          cp docs/public/apple-touch-icon.png xunshu-test-download.png
+          if gh release view test-download-v1 >/dev/null 2>&1; then
+            gh release upload test-download-v1 xunshu-test-download.png --clobber
+          else
+            gh release create test-download-v1 xunshu-test-download.png \
+              --title "下载链路测试（非软件安装包）" \
+              --notes "本 Release 仅用于测试官网下载。附件是迅树 MD 软件图标 PNG 图片，不是软件安装包，也不包含软件源码。" \
+              --prerelease \
+              --target "${GITHUB_SHA}"
+          fi
