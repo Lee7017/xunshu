@@ -238,6 +238,36 @@ for (const c of [
     await capture(page, 'faq-outline-desktop.png', false)
     const aside = page.locator('.VPDocAsideOutline.has-outline').first()
     await aside.screenshot({ path: path.join(output, 'faq-outline-detail.png'), animations: 'disabled' })
+
+    // 回归案例：从最后一项点回倒数第二项，不能仍高亮最后一项。
+    const penultimate = links.nth((await links.count()) - 2)
+    const penultimateHref = await penultimate.getAttribute('href')
+    await penultimate.click()
+    await page.waitForTimeout(900)
+    const penultimateState = await page.evaluate(() => {
+      const entries = [...document.querySelectorAll('.VPDocAsideOutline .outline-link')]
+      const active = entries.findIndex(x => x.classList.contains('active'))
+      const targetLink = entries[entries.length - 2]
+      const id = targetLink?.getAttribute('href')?.slice(1)
+      const target = id ? document.getElementById(decodeURIComponent(id)) : null
+      const vpDoc = document.querySelector('.VPDoc')
+      return {
+        hash: decodeURIComponent(location.hash),
+        activeIndex: active,
+        expectedIndex: entries.length - 2,
+        activeText: entries[active]?.textContent?.trim(),
+        scrollY: Math.round(window.scrollY),
+        maxScroll: document.documentElement.scrollHeight - window.innerHeight,
+        headingTop: target ? Math.round(target.getBoundingClientRect().top) : null,
+        docBottom: vpDoc ? Math.round(vpDoc.getBoundingClientRect().bottom) : null,
+        viewportHeight: innerHeight
+      }
+    })
+    findings.push({ test: 'faq-penultimate-after-last', ...penultimateState })
+    await capture(page, 'faq-after-penultimate-click.png', false)
+    if (penultimateState.hash !== decodeURIComponent(penultimateHref)) failures.push('faq: penultimate link failed to change URL hash')
+    if (penultimateState.activeIndex !== penultimateState.expectedIndex) failures.push('faq: penultimate heading is not highlighted after click')
+
   }
   if (errors.length) failures.push('faq: JS exceptions: ' + errors.join(' | '))
   await context.close()
