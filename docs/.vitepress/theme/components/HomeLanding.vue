@@ -21,6 +21,7 @@ import {
         <a class="xs-button secondary" :href="withBase('/demo/')"><Play :size="17" />在线体验</a>
       </div>
       <p class="platform-caption">面向 Windows / macOS / Android / iOS / iPadOS · 实际开放平台以发布信息为准</p>
+      <p class="hero-invite-link">想参与内测？<a :href="withBase('/invite/')">申请邀请码 <ArrowRight :size="14" /></a></p>
     </section>
 
     <section class="section-width preview-section" aria-label="软件界面布局示意">
@@ -145,6 +146,7 @@ import {
         <a class="xs-button secondary" :href="withBase('/demo/')"><Play :size="17"/>在线体验</a>
         <a class="xs-button secondary" :href="withBase('/guide/')"><BookOpen :size="17"/>阅读教程</a>
       </div>
+      <p class="final-invite-link">需要内测资格？<a :href="withBase('/invite/')">申请邀请码 <ArrowRight :size="14" /></a></p>
     </section>
   </main>
 </template>

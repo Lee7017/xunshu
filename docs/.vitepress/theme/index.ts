@@ -4,6 +4,7 @@ import HomeLanding from './components/HomeLanding.vue'
 import DownloadCards from './components/DownloadCards.vue'
 import DemoNotice from './components/DemoNotice.vue'
 import ScreenshotPage from './components/ScreenshotPage.vue'
+import InviteRequest from './components/InviteRequest.vue'
 import './custom.css'
 
 export default {
@@ -13,5 +14,6 @@ export default {
     app.component('DownloadCards', DownloadCards)
     app.component('DemoNotice', DemoNotice)
     app.component('ScreenshotPage', ScreenshotPage)
+    app.component('InviteRequest', InviteRequest)
   }
 } satisfies Theme

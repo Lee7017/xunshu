@@ -662,3 +662,94 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 @media (max-width: 680px) {
   .Layout .VPFooter { padding: 18px 16px 22px; }
 }
+
+
+/* 邀请码申请：复用全站按钮、卡片与文字规格。 */
+.hero-invite-link, .final-invite-link {
+  color: var(--xs-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.hero-invite-link a, .final-invite-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--xs-ink);
+  font-weight: 710;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hero-invite-link a:hover, .final-invite-link a:hover { text-decoration-thickness: 2px; }
+.hero-invite-link a svg, .final-invite-link a svg { flex: none; }
+.invite-banner {
+  max-width: 910px;
+  margin: 0 auto 24px;
+  padding: 22px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 22px;
+  background: var(--xs-frost);
+  border: 1px solid var(--xs-border);
+  border-radius: 20px;
+  box-shadow: inset 0 1px var(--xs-glow);
+}
+.invite-banner h2 { font-size: 17px; font-weight: 770; }
+.invite-banner p { margin-top: 6px; font-size: 12px; line-height: 1.8; color: var(--xs-muted); }
+.invite-banner .xs-button { flex-shrink: 0; }
+.invite-panel {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 32px;
+  background: var(--xs-frost);
+  border: 1px solid var(--xs-border);
+  border-radius: 20px;
+  box-shadow: var(--xs-shadow), inset 0 1px var(--xs-glow);
+}
+.invite-panel-heading { display: flex; gap: 15px; align-items: center; }
+.invite-panel-icon {
+  display: grid;
+  width: 52px; height: 52px; flex: none; place-items: center;
+  border-radius: 14px;
+  color: var(--xs-ink);
+  background: var(--xs-frost-strong);
+  border: 1px solid var(--xs-rule);
+}
+.invite-panel h2 { font-size: 21px; font-weight: 770; }
+.invite-panel-heading p { font-size: 12px; color: var(--xs-muted); margin-top: 7px; line-height: 1.8; }
+.invite-form { display: flex; flex-direction: column; margin-top: 29px; gap: 9px; }
+.invite-form label { font-size: 13px; font-weight: 710; }
+.invite-form label span { color: var(--xs-ink); }
+.invite-form input {
+  box-sizing: border-box;
+  display: block; width: 100%; height: 48px; border-radius: 12px;
+  padding: 0 15px; font-family: inherit; font-size: 15px;
+  background: var(--xs-frost-strong);
+  color: var(--xs-ink); border: 1px solid var(--xs-rule);
+}
+.invite-form input::placeholder { color: var(--xs-muted); opacity: .75; }
+.invite-form input:focus-visible { outline: 2px solid var(--xs-ink); outline-offset: 2px; }
+.invite-form input[aria-invalid="true"] { border-color: var(--vp-c-text-2); }
+.invite-hint { color: var(--xs-muted); font-size: 12px; line-height: 1.8; }
+.invite-submit { margin-top: 13px; width: 100%; cursor: pointer; }
+.invite-submit:disabled {
+  cursor: not-allowed; color: var(--xs-muted);
+  background: var(--xs-soft); border-color: var(--xs-rule); box-shadow: none;
+}
+.invite-details { border-top: 1px solid var(--xs-rule); margin-top: 28px; padding-top: 23px; }
+.invite-details p { font-size: 12px; line-height: 1.95; color: var(--xs-muted); margin: 0 0 13px; overflow-wrap: anywhere; }
+.invite-details strong { color: var(--xs-ink); font-weight: 700; }
+.invite-address { color: var(--xs-ink); font-weight: 650; }
+.invite-privacy {
+  display: flex; gap: 8px; align-items: flex-start;
+  margin-top: 18px !important; color: var(--xs-muted);
+  font-size: 11px; line-height: 1.8;
+}
+.invite-privacy svg { flex: 0 0 16px; margin-top: 2px; }
+@media (max-width: 680px) {
+  .invite-banner { padding: 19px; flex-direction: column; align-items: stretch; gap: 15px; }
+  .invite-banner .xs-button { width: 100%; }
+  .invite-panel { padding: 23px 19px; }
+  .invite-panel h2 { font-size: 19px; }
+  .invite-form { margin-top: 23px; }
+}

@@ -237,6 +237,67 @@ for (const c of [
   await context.close()
 }
 
+// 内测邀请码：手机号必填，生成由用户自行发送的 mailto 草稿；没有后台提交或自动发送。
+for (const item of [
+  { label: 'invite-desktop-light', width: 1440, height: 900, theme: 'light' },
+  { label: 'invite-desktop-dark', width: 1440, height: 900, theme: 'dark' },
+  { label: 'invite-mobile-light', width: 390, height: 844, theme: 'light' },
+  { label: 'invite-mobile-dark', width: 390, height: 844, theme: 'dark' }
+]) {
+  const ctx = await browser.newContext({
+    viewport: { width: item.width, height: item.height }, colorScheme: item.theme,
+    isMobile: item.width < 500, hasTouch: item.width < 500
+  })
+  const page = await ctx.newPage()
+  const pageErrors = []
+  page.on('pageerror', err => pageErrors.push(err.message))
+  const response = await page.goto(new URL('invite/', origin).href, { waitUntil: 'networkidle' })
+  if (!response?.ok()) failures.push(item.label + ': invite page HTTP ' + response?.status())
+  const button = page.getByRole('button', { name: /打开自己的邮箱写信/ })
+  const phone = page.getByRole('textbox', { name: /手机号/ })
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with empty phone')
+  await phone.fill('1234')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with short phone')
+  await phone.fill('+86 138 0012 3456')
+  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled for valid phone')
+  const mailto = await button.getAttribute('data-mailto')
+  let composed
+  try {
+    const u = new URL(mailto)
+    composed = { recipient: u.pathname, subject: u.searchParams.get('subject'), body: u.searchParams.get('body') }
+  } catch {
+    failures.push(item.label + ': mailto is invalid')
+  }
+  if (!mailto?.startsWith('mailto:3406521093@qq.com?')) failures.push(item.label + ': wrong recipient address')
+  if (composed?.subject !== '迅树 MD 内测邀请码申请') failures.push(item.label + ': subject missing')
+  if (!composed?.body?.includes('手机号：+86 138 0012 3456')) failures.push(item.label + ': phone missing in email')
+  if (!composed?.body?.includes('请直接回复这封邮件')) failures.push(item.label + ': missing reply instruction')
+  const layout = await page.evaluate(() => ({
+    overflow: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    title: document.querySelector('h1')?.textContent?.trim(),
+    submitHeight: Math.round(document.querySelector('.invite-submit')?.getBoundingClientRect().height || 0),
+    corners: getComputedStyle(document.querySelector('.invite-submit')).borderRadius,
+    footer: document.querySelector('.VPFooter .copyright')?.textContent?.trim()
+  }))
+  if (layout.overflow > 1) failures.push(item.label + ': horizontal overflow')
+  if (layout.submitHeight !== 46 || layout.corners !== '12px') failures.push(item.label + ': button style inconsistent')
+  if (layout.footer !== 'Copyright © 2026 迅树 MD. All rights reserved.') failures.push(item.label + ': footer missing')
+  if (pageErrors.length) failures.push(item.label + ': JS exceptions ' + pageErrors.join(' | '))
+  findings.push({ test: 'invite-mailto', variant: item.label, recipient: composed?.recipient, phoneInEmail: composed?.body?.includes('手机号：+86 138 0012 3456'), ...layout })
+  await capture(page, item.label + '.png', true)
+  await ctx.close()
+}
+for (const entry of [{label:'home',url:''},{label:'download',url:'download/'}]) {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+  const page = await ctx.newPage()
+  await page.goto(new URL(entry.url,origin).href, { waitUntil: 'networkidle' })
+  const links = page.getByRole('link', { name: /申请邀请码/ })
+  if (await links.count() === 0) failures.push(entry.label + ': no invite entry')
+  else if (!(await links.first().getAttribute('href'))?.includes('/xunshu/invite/'))
+    failures.push(entry.label + ': invite entry has wrong URL')
+  await ctx.close()
+}
+
 // 文档右侧目录：检查活动标记必须留在卡片内，并与当前小标题居中对齐。
 {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })

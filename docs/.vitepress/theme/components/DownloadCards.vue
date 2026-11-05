@@ -12,6 +12,13 @@ const iconMap = { monitor: Monitor, smartphone: Smartphone, laptop: Laptop, tabl
       <h1>下载迅树 MD</h1>
       <p>选择适合你设备的安装版本。页面只提供实际发布的 GitHub Releases 资源。</p>
     </div>
+    <section class="invite-banner" aria-labelledby="download-invite-title">
+      <div>
+        <h2 id="download-invite-title">申请内测邀请码</h2>
+        <p>希望提前体验？填写手机号，用你自己的邮箱发送申请，我们通过邮件回复。</p>
+      </div>
+      <a class="xs-button secondary" :href="withBase('/invite/')">申请邀请码 <ArrowRight :size="17" /></a>
+    </section>
     <div class="download-grid">
       <article v-for="item in releasePlatforms" :key="item.name" class="download-card">
         <div class="platform-icon"><component :is="iconMap[item.icon]" :size="30" stroke-width="1.55"/></div>
