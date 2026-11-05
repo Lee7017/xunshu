@@ -93,19 +93,57 @@ for (const c of [
     await search.click()
     await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
     await page.locator('.VPLocalSearchBox .search-input').fill('Markdown')
+    const modalStyling = await page.evaluate(() => {
+      const shell = document.querySelector('.VPLocalSearchBox .shell')
+      const input = document.querySelector('.VPLocalSearchBox .search-input')
+      const bar = document.querySelector('.VPLocalSearchBox .search-bar')
+      const firstResult = document.querySelector('.VPLocalSearchBox .result')
+      if (!shell || !input || !bar) return null
+      return {
+        width: Math.round(shell.getBoundingClientRect().width),
+        inputOutline: getComputedStyle(input).outlineStyle,
+        barRadius: getComputedStyle(bar).borderRadius,
+        firstBorderWidth: firstResult && getComputedStyle(firstResult).borderTopWidth
+      }
+    })
+    if (!modalStyling) failures.push('search modal missing required elements')
+    else {
+      if (modalStyling.inputOutline !== 'none') failures.push('search input has nested outline')
+      if (modalStyling.firstBorderWidth && parseFloat(modalStyling.firstBorderWidth) > 1) failures.push('search result border too thick')
+    }
+    if (modalStyling && modalStyling.width > 680) failures.push('desktop: search modal width exceeds 680px')
     await page.waitForTimeout(650)
     const matches = await page.locator('.VPLocalSearchBox .result').count()
     if (matches === 0) failures.push('desktop: Markdown search returned no results')
     await capture(page, 'search-dialog-desktop.png', false)
     await page.keyboard.press('Escape')
     await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
-    findings.push({ test: 'search-desktop', positions, matches, closedByEscape: true })
+    findings.push({ test: 'search-desktop', positions, matches, modalStyling, closedByEscape: true })
   }
   if (c.label === 'home-mobile') {
     const search = page.locator('.VPNavBarSearch .DocSearch-Button').first()
     await search.click()
     await page.locator('.VPLocalSearchBox .search-input').waitFor({ state: 'visible' })
     await page.locator('.VPLocalSearchBox .search-input').fill('同步')
+    const modalStyling = await page.evaluate(() => {
+      const shell = document.querySelector('.VPLocalSearchBox .shell')
+      const input = document.querySelector('.VPLocalSearchBox .search-input')
+      const bar = document.querySelector('.VPLocalSearchBox .search-bar')
+      const firstResult = document.querySelector('.VPLocalSearchBox .result')
+      if (!shell || !input || !bar) return null
+      return {
+        width: Math.round(shell.getBoundingClientRect().width),
+        inputOutline: getComputedStyle(input).outlineStyle,
+        barRadius: getComputedStyle(bar).borderRadius,
+        firstBorderWidth: firstResult && getComputedStyle(firstResult).borderTopWidth
+      }
+    })
+    if (!modalStyling) failures.push('search modal missing required elements')
+    else {
+      if (modalStyling.inputOutline !== 'none') failures.push('search input has nested outline')
+      if (modalStyling.firstBorderWidth && parseFloat(modalStyling.firstBorderWidth) > 1) failures.push('search result border too thick')
+    }
+    if (modalStyling && modalStyling.width > 390) failures.push('mobile: search modal extends beyond viewport')
     await page.waitForTimeout(650)
     const matches = await page.locator('.VPLocalSearchBox .result').count()
     if (matches === 0) failures.push('mobile: search 同步 returned no results')
@@ -113,7 +151,7 @@ for (const c of [
     const back = page.locator('.VPLocalSearchBox .back-button')
     await back.click()
     await page.locator('.VPLocalSearchBox').waitFor({ state: 'detached' })
-    findings.push({ test: 'search-mobile', matches, closedByBack: true })
+    findings.push({ test: 'search-mobile', matches, modalStyling, closedByBack: true })
   }
   if (c.label === 'home-desktop') {
     // “关于”必须是链接，不能是悬浮即展开的下拉按钮。
@@ -127,6 +165,7 @@ for (const c of [
       await capture(page, 'about-nav-desktop-before-click.png', false)
       await about.click()
       await page.waitForURL(/\/xunshu\/about\/?(?:\.html)?$/, { timeout: 6000 })
+      await page.waitForFunction(() => document.querySelector('h1')?.textContent?.includes('关于迅树 MD'), null, { timeout: 8000 })
       const heading = await page.locator('h1').first().textContent()
       const acknowledgements = await page.getByRole('link', { name: '开源致谢' }).count()
       const licenses = await page.getByRole('link', { name: '第三方许可证' }).count()
