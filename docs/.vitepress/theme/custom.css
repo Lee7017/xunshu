@@ -635,3 +635,30 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 @media (prefers-reduced-motion: reduce) {
   .VPMenu { animation: none; }
 }
+
+
+/* 全站统一版权页脚。
+   VitePress 原生 Footer 在有侧边栏的页面默认隐藏；这里保持所有页面可见。 */
+.Layout .VPFooter {
+  background: transparent;
+  border-top: 1px solid var(--xs-rule);
+  padding: 22px 24px 26px;
+}
+.Layout .VPFooter.has-sidebar {
+  display: block;
+}
+.Layout .VPFooter .copyright {
+  color: var(--xs-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: .01em;
+}
+@media (min-width: 960px) {
+  .Layout .VPFooter.has-sidebar {
+    padding-left: calc(var(--vp-sidebar-width) + 24px);
+  }
+}
+@media (max-width: 680px) {
+  .Layout .VPFooter { padding: 18px 16px 22px; }
+}

@@ -181,13 +181,17 @@ for (const c of [
     return { title: document.title, heading: document.querySelector('h1')?.textContent?.trim(),
       overflow: Math.max(0, el.scrollWidth - window.innerWidth),
       buttons, theme: el.classList.contains('dark') ? 'dark' : 'light',
-      searchVisible: !!document.querySelector('.VPNavBarSearch') && getComputedStyle(document.querySelector('.VPNavBarSearch')).display !== 'none'
+      searchVisible: !!document.querySelector('.VPNavBarSearch') && getComputedStyle(document.querySelector('.VPNavBarSearch')).display !== 'none',
+      copyright: document.querySelector('.VPFooter .copyright')?.textContent?.trim() ?? '',
+      footerVisible: !!document.querySelector('.VPFooter') && getComputedStyle(document.querySelector('.VPFooter')).display !== 'none'
     }
   })
   if (!response?.ok()) failures.push(c.label + ': HTTP ' + response?.status())
   if (!metrics.heading) failures.push(c.label + ': missing page title')
   if (metrics.overflow > 2) failures.push(c.label + ': horizontal overflow ' + metrics.overflow)
   if (metrics.searchVisible) failures.push(c.label + ': removed search is visible')
+  if (!metrics.footerVisible || metrics.copyright !== 'Copyright © 2026 迅树 MD. All rights reserved.')
+    failures.push(c.label + ': copyright footer missing, hidden, or incorrect')
   if (metrics.theme !== c.theme) failures.push(c.label + ': mismatched color theme ' + metrics.theme)
   if (errors.length) failures.push(c.label + ': JS errors ' + errors.join(' | '))
   for (const b of metrics.buttons) {
@@ -229,7 +233,7 @@ for (const c of [
     'screenshots-dark-desktop','guide-dark-desktop','changelog-dark-desktop'].includes(c.label))
     await capture(page, 'site-' + c.label + '.png', true)
   findings.push({ page: c.label, test: 'layout-review', heading: metrics.heading, overflow: metrics.overflow,
-    buttons: metrics.buttons.length, theme: metrics.theme, pageErrors: errors })
+    buttons: metrics.buttons.length, theme: metrics.theme, footerVisible: metrics.footerVisible, copyright: metrics.copyright, pageErrors: errors })
   await context.close()
 }
 

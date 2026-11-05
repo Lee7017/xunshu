@@ -59,6 +59,6 @@ export default defineConfig({
     darkModeSwitchTitle: '切换为深色模式',
     returnToTopLabel: '返回顶部',
     sidebarMenuLabel: '目录',
-    // 明确不配置 footer：整站取消网站级页脚
+    footer: { copyright: 'Copyright © 2026 迅树 MD. All rights reserved.' }
   }
 })
