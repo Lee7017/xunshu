@@ -196,6 +196,53 @@ for (const c of [
   await context.close()
 }
 
+// 文档右侧目录：检查活动标记必须留在卡片内，并与当前小标题居中对齐。
+{
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
+  const page = await context.newPage()
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  const response = await page.goto(new URL('guide/faq.html', origin).href, { waitUntil: 'networkidle' })
+  if (!response?.ok()) failures.push('faq: page did not load')
+  const links = page.locator('.VPDocAsideOutline.has-outline .outline-link')
+  if (await links.count() === 0) {
+    failures.push('faq: outline links not found')
+  } else {
+    await links.last().click()
+    await page.waitForTimeout(750)
+    const geometry = await page.evaluate(() => {
+      const aside = document.querySelector('.VPDocAsideOutline.has-outline')
+      const marker = aside?.querySelector('.outline-marker')
+      const selected = aside?.querySelector('.outline-link.active')
+      if (!aside || !marker || !selected) return null
+      const a = aside.getBoundingClientRect()
+      const m = marker.getBoundingClientRect()
+      const l = selected.getBoundingClientRect()
+      return {
+        activeText: selected.textContent?.trim(),
+        opacity: getComputedStyle(marker).opacity,
+        markerInside: m.left >= a.left + 8 && m.right < l.left,
+        centerDifference: Math.round(Math.abs((m.top + m.height / 2) - (l.top + l.height / 2)) * 10) / 10,
+        markerX: Math.round(m.left - a.left),
+        linkX: Math.round(l.left - a.left),
+        cardWidth: Math.round(a.width)
+      }
+    })
+    if (!geometry) failures.push('faq: active outline marker missing')
+    else {
+      if (geometry.opacity === '0') failures.push('faq: active marker invisible')
+      if (!geometry.markerInside) failures.push('faq: active marker outside card or after text')
+      if (geometry.centerDifference > 4) failures.push('faq: outline marker misaligned by ' + geometry.centerDifference + 'px')
+    }
+    findings.push({ test: 'faq-outline-alignment', ...geometry })
+    await capture(page, 'faq-outline-desktop.png', false)
+    const aside = page.locator('.VPDocAsideOutline.has-outline').first()
+    await aside.screenshot({ path: path.join(output, 'faq-outline-detail.png'), animations: 'disabled' })
+  }
+  if (errors.length) failures.push('faq: JS exceptions: ' + errors.join(' | '))
+  await context.close()
+}
+
 const reduced = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
 const rmPage = await reduced.newPage()
 await rmPage.goto(origin, { waitUntil: 'networkidle' })

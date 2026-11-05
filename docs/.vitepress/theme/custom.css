@@ -145,11 +145,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   -webkit-backdrop-filter: blur(14px) saturate(120%);
   backdrop-filter: blur(14px) saturate(120%);
 }
-.VPDocAsideOutline .content {
+/* 卡片放在目录外层：不要给原生 .content 添加上内边距。
+   VitePress 根据链接 offsetTop 定位活动标记；内部 padding 会让标记错位。 */
+.VPDocAsideOutline.has-outline {
   border-radius: 15px;
   border: 1px solid var(--xs-border);
   background: var(--xs-frost);
   padding: 18px;
+  box-shadow: inset 0 1px var(--xs-glow);
+}
+.VPDocAsideOutline .content {
+  position: relative;
+  border: 0;
+  border-left: 1px solid var(--vp-c-divider);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0 16px;
 }
 .vp-doc { color: var(--vp-c-text-1); }
 .vp-doc h1 { font-size: clamp(28px, 3vw, 36px); letter-spacing: -.05em; font-weight: 780; }
