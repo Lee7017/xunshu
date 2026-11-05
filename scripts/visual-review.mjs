@@ -140,6 +140,99 @@ for (const c of [
   await context.close()
 }
 
+// 全站一致性检查：包括深/浅色、首页/下载/演示/截图/文档/日志/关于/许可证，
+// 以及三项不同操作在桌面和手机上是否具有相同的尺寸、圆角和对齐方式。
+for (const c of [
+  { label: 'home-dark-desktop', url: '', width: 1440, height: 900, theme: 'dark' },
+  { label: 'home-light-desktop', url: '', width: 1440, height: 900, theme: 'light' },
+  { label: 'home-dark-mobile', url: '', width: 390, height: 844, theme: 'dark' },
+  { label: 'home-light-mobile', url: '', width: 390, height: 844, theme: 'light' },
+  { label: 'home-light-tablet', url: '', width: 768, height: 1024, theme: 'light' },
+  { label: 'download-dark-desktop', url: 'download/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'download-light-mobile', url: 'download/', width: 390, height: 844, theme: 'light' },
+  { label: 'demo-dark-desktop', url: 'demo/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'demo-light-mobile', url: 'demo/', width: 390, height: 844, theme: 'light' },
+  { label: 'screenshots-dark-desktop', url: 'screenshots/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'screenshots-light-mobile', url: 'screenshots/', width: 390, height: 844, theme: 'light' },
+  { label: 'guide-dark-desktop', url: 'guide/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'guide-light-mobile', url: 'guide/', width: 390, height: 844, theme: 'light' },
+  { label: 'changelog-dark-desktop', url: 'changelog/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'about-light-desktop', url: 'about/', width: 1440, height: 900, theme: 'light' },
+  { label: 'acknowledgements-light-desktop', url: 'acknowledgements/', width: 1440, height: 900, theme: 'light' },
+  { label: 'licenses-dark-desktop', url: 'licenses/', width: 1440, height: 900, theme: 'dark' },
+  { label: 'faq-light-mobile', url: 'guide/faq.html', width: 390, height: 844, theme: 'light' }
+]) {
+  const context = await browser.newContext({
+    viewport: { width: c.width, height: c.height },
+    colorScheme: c.theme,
+    deviceScaleFactor: 1,
+    isMobile: c.width <= 390,
+    hasTouch: c.width <= 390
+  })
+  const page = await context.newPage()
+  const errors = []
+  page.on('pageerror', e => errors.push(e.message))
+  const response = await page.goto(new URL(c.url, origin).href, { waitUntil: 'networkidle', timeout: 45000 })
+  const metrics = await page.evaluate(() => {
+    const el = document.documentElement
+    const buttons = [...document.querySelectorAll('.xs-button')]
+      .map(x => ({ text: x.textContent.trim(), width: x.getBoundingClientRect().width,
+        height: x.getBoundingClientRect().height, radius: getComputedStyle(x).borderRadius }))
+    return { title: document.title, heading: document.querySelector('h1')?.textContent?.trim(),
+      overflow: Math.max(0, el.scrollWidth - window.innerWidth),
+      buttons, theme: el.classList.contains('dark') ? 'dark' : 'light',
+      searchVisible: !!document.querySelector('.VPNavBarSearch') && getComputedStyle(document.querySelector('.VPNavBarSearch')).display !== 'none'
+    }
+  })
+  if (!response?.ok()) failures.push(c.label + ': HTTP ' + response?.status())
+  if (!metrics.heading) failures.push(c.label + ': missing page title')
+  if (metrics.overflow > 2) failures.push(c.label + ': horizontal overflow ' + metrics.overflow)
+  if (metrics.searchVisible) failures.push(c.label + ': removed search is visible')
+  if (metrics.theme !== c.theme) failures.push(c.label + ': mismatched color theme ' + metrics.theme)
+  if (errors.length) failures.push(c.label + ': JS errors ' + errors.join(' | '))
+  for (const b of metrics.buttons) {
+    if (b.height < 45 || b.height > 49) failures.push(c.label + ': button height inconsistent: ' + b.text + '=' + b.height)
+    if (b.radius !== '12px') failures.push(c.label + ': button corner radius inconsistent: ' + b.text + '=' + b.radius)
+  }
+  if (c.label.startsWith('home')) {
+    const cta = page.locator('.final-cta')
+    const buttons = cta.locator('.hero-actions .xs-button')
+    const count = await buttons.count()
+    if (count !== 3) failures.push(c.label + ': expected 3 CTA buttons, got ' + count)
+    else {
+      const rects = await buttons.evaluateAll(els => els.map(el => {
+        const rect = el.getBoundingClientRect()
+        return { label: el.textContent?.trim(), width: rect.width, height: rect.height, x: rect.left, y: rect.top, radius: getComputedStyle(el).borderRadius }
+      }))
+      const widths = rects.map(x => x.width)
+      if (Math.max(...widths) - Math.min(...widths) > 2) failures.push(c.label + ': CTA button widths are inconsistent')
+      if (c.width > 680 && Math.max(...rects.map(x => x.y)) - Math.min(...rects.map(x => x.y)) > 2)
+        failures.push(c.label + ': CTA buttons are not aligned horizontally')
+      if (c.width <= 390 && Math.max(...rects.map(x => x.x)) - Math.min(...rects.map(x => x.x)) > 2)
+        failures.push(c.label + ': mobile CTA buttons are not aligned vertically')
+      findings.push({ page: c.label, test: 'cta-alignment', buttons: rects })
+      await cta.screenshot({ path: path.join(output, c.label + '-final-cta.png'), animations: 'disabled' })
+    }
+  }
+  if (c.label === 'download-dark-desktop') {
+    const cards = page.locator('.download-card')
+    const heights = await cards.evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)))
+    const actionRects = await page.locator('.download-action').evaluateAll(els => els.map(el => ({
+      y: Math.round(el.getBoundingClientRect().top), height: Math.round(el.getBoundingClientRect().height)
+    })))
+    if (Math.abs(heights[0] - heights[1]) > 2 || Math.abs(actionRects[0].y - actionRects[1].y) > 2)
+      failures.push('download-desktop: card actions not aligned')
+    if (await page.locator('.test-download-note [style]').count()) failures.push('download: inline style remains on test download section')
+    findings.push({ page: c.label, test: 'download-card-alignment', heights, actionRects })
+  }
+  if (['home-dark-desktop','home-light-mobile','download-dark-desktop','demo-dark-desktop',
+    'screenshots-dark-desktop','guide-dark-desktop','changelog-dark-desktop'].includes(c.label))
+    await capture(page, 'site-' + c.label + '.png', true)
+  findings.push({ page: c.label, test: 'layout-review', heading: metrics.heading, overflow: metrics.overflow,
+    buttons: metrics.buttons.length, theme: metrics.theme, pageErrors: errors })
+  await context.close()
+}
+
 // 文档右侧目录：检查活动标记必须留在卡片内，并与当前小标题居中对齐。
 {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
