@@ -27,11 +27,7 @@ export default defineConfig({
       { text: '使用文档', link: '/guide/' },
       { text: '在线体验', link: '/demo/' },
       { text: '更新日志', link: '/changelog/' },
-      { text: '关于', items: [
-        { text: '关于迅树 MD', link: '/about/' },
-        { text: '开源致谢', link: '/acknowledgements/' },
-        { text: '第三方许可证', link: '/licenses/' }
-      ] }
+      { text: '关于', link: '/about/' }
     ],
     sidebar: {
       '/guide/': [

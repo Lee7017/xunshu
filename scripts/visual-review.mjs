@@ -79,6 +79,42 @@ for (const c of [
     findings.push({ component: 'download-card', transformBefore, transformAfter, href })
     await capture(page, 'downloads-hover-desktop.png')
   }
+  if (c.label === 'home-desktop') {
+    // “关于”必须是链接，不能是悬浮即展开的下拉按钮。
+    const about = page.locator('.VPNavBarMenu').getByRole('link', { name: '关于', exact: true })
+    if (await about.count() !== 1) failures.push('desktop: 关于 is not a single link')
+    else {
+      await about.hover()
+      await page.waitForTimeout(250)
+      const groupCount = await page.locator('.VPNavBarMenuGroup').count()
+      if (groupCount !== 0) failures.push('desktop: hovering about still opens a nav dropdown')
+      await capture(page, 'about-nav-desktop-before-click.png', false)
+      await about.click()
+      await page.waitForURL(/\/xunshu\/about\/?(?:\.html)?$/, { timeout: 6000 })
+      const heading = await page.locator('h1').first().textContent()
+      const acknowledgements = await page.getByRole('link', { name: '开源致谢' }).count()
+      const licenses = await page.getByRole('link', { name: '第三方许可证' }).count()
+      if (!heading?.includes('关于迅树 MD')) failures.push('desktop: about page heading is wrong')
+      if (!acknowledgements || !licenses) failures.push('desktop: about page is missing related links')
+      await capture(page, 'about-page-desktop.png')
+      findings.push({ test: 'about-desktop', heading, acknowledgements, licenses, dropdownCount: groupCount })
+    }
+  }
+  if (c.label === 'home-mobile') {
+    const toggle = page.locator('.VPNavBarHamburger').first()
+    await toggle.click()
+    const link = page.locator('.VPNavScreen').getByRole('link', { name: '关于', exact: true })
+    if (await link.count() !== 1) failures.push('mobile: 关于 is not a single link')
+    else {
+      await capture(page, 'about-nav-mobile-open.png', false)
+      await link.click()
+      await page.waitForURL(/\/xunshu\/about\/?(?:\.html)?$/, { timeout: 6000 })
+      const heading = await page.locator('h1').first().textContent()
+      if (!heading?.includes('关于迅树 MD')) failures.push('mobile: about did not navigate')
+      await capture(page, 'about-page-mobile.png')
+      findings.push({ test: 'about-mobile', heading })
+    }
+  }
   if (c.label === 'home-desktop' || c.label === 'home-mobile') await printReference(page, c.label)
   if (c.label === 'downloads-desktop') await printReference(page, c.label)
   await context.close()
