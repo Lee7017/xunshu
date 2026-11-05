@@ -52,7 +52,7 @@ export default defineConfig({
       // 更新日志使用独立侧边栏；版本列表由实际已发布的 Markdown 文件自动生成。
       '/changelog/': createChangelogSidebar()
     },
-    search: { provider: 'local', options: { translations: {
+    search: { provider: 'local', options: { disableDetailedView: true, translations: {
       button: { buttonText: '搜索', buttonAriaLabel: '搜索文档' },
       modal: {
         displayDetails: '显示详情', resetButtonTitle: '清空', backButtonTitle: '关闭',
