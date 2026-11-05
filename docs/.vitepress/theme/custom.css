@@ -76,7 +76,8 @@ body {
     radial-gradient(ellipse 36% 33% at 95% 24%, rgba(195,199,209,.38), transparent 95%),
     radial-gradient(ellipse 46% 46% at 7% 75%, rgba(207,212,222,.30), transparent 90%),
     linear-gradient(145deg, #f6f7f9 0%, #e9ebef 52%, #f6f7f9 100%);
-  background-attachment: fixed;
+  /* 长页面保持背景连续，避免固定背景在跨视口截图和滚动时出现断层。 */
+  background-attachment: scroll;
 }
 .dark body {
   background-image:
