@@ -237,7 +237,7 @@ for (const c of [
   await context.close()
 }
 
-// 内测邀请码：手机号必填，生成由用户自行发送的 mailto 草稿；没有后台提交或自动发送。
+// 内测邀请码：昵称和手机号均必填，生成由用户自行发送的 mailto 草稿；没有后台提交或自动发送。
 for (const item of [
   { label: 'invite-desktop-light', width: 1440, height: 900, theme: 'light' },
   { label: 'invite-desktop-dark', width: 1440, height: 900, theme: 'dark' },
@@ -254,12 +254,21 @@ for (const item of [
   const response = await page.goto(new URL('invite/', origin).href, { waitUntil: 'networkidle' })
   if (!response?.ok()) failures.push(item.label + ': invite page HTTP ' + response?.status())
   const button = page.getByRole('button', { name: /打开自己的邮箱写信/ })
+  const nickname = page.getByRole('textbox', { name: /昵称/ })
   const phone = page.getByRole('textbox', { name: /手机号/ })
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with empty phone')
-  await phone.fill('1234')
-  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with short phone')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with empty fields')
   await phone.fill('+86 138 0012 3456')
-  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled for valid phone')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled without nickname')
+  await nickname.fill(' ')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with whitespace-only nickname')
+  await nickname.fill('李')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with one-character nickname')
+  await nickname.fill('山林记录者')
+  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled with valid nickname and phone')
+  await phone.fill('1234')
+  if (!await button.isDisabled()) failures.push(item.label + ': email button enabled with invalid phone')
+  await phone.fill('+86 138 0012 3456')
+  if (!await button.isEnabled()) failures.push(item.label + ': email button disabled after restoring valid phone')
   const mailto = await button.getAttribute('data-mailto')
   let composed
   try {
@@ -270,6 +279,7 @@ for (const item of [
   }
   if (!mailto?.startsWith('mailto:3406521093@qq.com?')) failures.push(item.label + ': wrong recipient address')
   if (composed?.subject !== '迅树 MD 内测邀请码申请') failures.push(item.label + ': subject missing')
+  if (!composed?.body?.includes('昵称：山林记录者')) failures.push(item.label + ': nickname missing in email')
   if (!composed?.body?.includes('手机号：+86 138 0012 3456')) failures.push(item.label + ': phone missing in email')
   if (!composed?.body?.includes('请直接回复这封邮件')) failures.push(item.label + ': missing reply instruction')
   const layout = await page.evaluate(() => ({
@@ -283,7 +293,7 @@ for (const item of [
   if (layout.submitHeight !== 46 || layout.corners !== '12px') failures.push(item.label + ': button style inconsistent')
   if (layout.footer !== 'Copyright © 2026 迅树 MD. All rights reserved.') failures.push(item.label + ': footer missing')
   if (pageErrors.length) failures.push(item.label + ': JS exceptions ' + pageErrors.join(' | '))
-  findings.push({ test: 'invite-mailto', variant: item.label, recipient: composed?.recipient, phoneInEmail: composed?.body?.includes('手机号：+86 138 0012 3456'), ...layout })
+  findings.push({ test: 'invite-mailto', variant: item.label, recipient: composed?.recipient, nicknameInEmail: composed?.body?.includes('昵称：山林记录者'), phoneInEmail: composed?.body?.includes('手机号：+86 138 0012 3456'), ...layout })
   await capture(page, item.label + '.png', true)
   await ctx.close()
 }
