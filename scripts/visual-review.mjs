@@ -237,7 +237,7 @@ for (const c of [
   await context.close()
 }
 
-// 内测邀请码：仅显示发邮件说明，支持复制；不收集手机号、不触发 mailto。
+// 内测邀请码：可在当前页面编辑邮件正文并复制；不提交数据、不触发 mailto。
 for (const item of [
   { label: 'invite-desktop-light', width: 1440, height: 900, theme: 'light' },
   { label: 'invite-desktop-dark', width: 1440, height: 900, theme: 'dark' },
@@ -261,6 +261,8 @@ for (const item of [
   }
   if (await instructions.locator('form, input, [data-mailto], a[href^="mailto:"]').count())
     failures.push(item.label + ': legacy form or mailto still exists')
+  if (await instructions.locator('textarea').count() !== 1)
+    failures.push(item.label + ': editable email body is missing')
   const emailButton = page.getByRole('button', { name: '复制邮箱' })
   const subjectButton = page.getByRole('button', { name: '复制主题' })
   const bodyButton = page.getByRole('button', { name: '复制邮件正文' })
@@ -270,10 +272,23 @@ for (const item of [
   await subjectButton.click()
   const subjectClipboard = await page.evaluate(() => navigator.clipboard.readText())
   if (subjectClipboard !== '迅树 MD 内测邀请码申请') failures.push(item.label + ': subject copy mismatch')
+  const editor = page.getByRole('textbox', { name: '邮件正文（可编辑）' })
+  if (!await editor.isEditable()) failures.push(item.label + ': email body is not editable')
+  const initialBody = await editor.inputValue()
+  if (!initialBody.includes('昵称：请填写你的昵称') || !initialBody.includes('手机号：请填写你的手机号'))
+    failures.push(item.label + ': initial email example missing')
+  const customBody = '昵称：测试用户\n手机号：13800123456\n\n我想申请迅树 MD 内测邀请码。'
+  await editor.fill(customBody)
+  if (await editor.inputValue() !== customBody) failures.push(item.label + ': editing email body failed')
   await bodyButton.click()
   const bodyClipboard = await page.evaluate(() => navigator.clipboard.readText())
-  if (!bodyClipboard.includes('昵称：请填写你的昵称') || !bodyClipboard.includes('手机号：请填写你的手机号'))
-    failures.push(item.label + ': body template copy mismatch')
+  if (bodyClipboard !== customBody) failures.push(item.label + ': edited email body copy mismatch')
+  await editor.fill(customBody.replace('13800123456', '13900001111'))
+  if (!await page.getByRole('button', { name: '复制邮件正文' }).count())
+    failures.push(item.label + ': copy state did not reset after editing')
+  await page.getByRole('button', { name: '复制邮件正文' }).click()
+  if ((await page.evaluate(() => navigator.clipboard.readText())) !== customBody.replace('13800123456', '13900001111'))
+    failures.push(item.label + ': second edit not reflected in clipboard')
   const layout = await page.evaluate(() => ({
     overflow: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
     title: document.querySelector('h1')?.textContent?.trim(),

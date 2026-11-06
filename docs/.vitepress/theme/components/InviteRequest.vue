@@ -10,8 +10,14 @@ const applicationTemplate = [
   '',
   '我想申请迅树 MD 内测邀请码，请通过本邮件回复。'
 ].join('\n')
+const emailBody = ref(applicationTemplate)
 const copied = ref('')
 const copyNotice = ref('')
+
+function onBodyInput() {
+  copied.value = ''
+  copyNotice.value = ''
+}
 
 async function copyText(key: string, value: string) {
   try {
@@ -71,9 +77,21 @@ async function copyText(key: string, value: string) {
       </div>
 
       <div class="invite-copy-section">
-        <div class="invite-copy-heading"><strong>邮件正文示例</strong><span>将提示文字替换为你的真实信息</span></div>
-        <pre class="invite-mail-example">{{ applicationTemplate }}</pre>
-        <button class="xs-button secondary invite-template-button" type="button" @click="copyText('template', applicationTemplate)">
+        <div class="invite-copy-heading">
+          <label for="invite-mail-body">邮件正文（可编辑）</label>
+          <span>把昵称和手机号改为自己的信息后再复制</span>
+        </div>
+        <textarea
+          id="invite-mail-body"
+          v-model="emailBody"
+          class="invite-mail-example"
+          rows="6"
+          spellcheck="false"
+          aria-describedby="invite-mail-hint"
+          @input="onBodyInput"
+        ></textarea>
+        <p id="invite-mail-hint" class="invite-hint">内容仅保留在当前网页中，不会由官网提交或发送。</p>
+        <button class="xs-button secondary invite-template-button" type="button" @click="copyText('template', emailBody)">
           <Check v-if="copied === 'template'" :size="16" /><Copy v-else :size="16" />
           {{ copied === 'template' ? '已复制' : '复制邮件正文' }}
         </button>

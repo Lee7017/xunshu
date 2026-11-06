@@ -722,18 +722,32 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .invite-steps strong { color: var(--xs-ink); }
 .invite-copy-section { padding: 18px 0; border-top: 1px solid var(--xs-rule); }
 .invite-copy-heading { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; margin-bottom: 12px; }
-.invite-copy-heading strong { font-size: 14px; font-weight: 730; }
+.invite-copy-heading strong, .invite-copy-heading label { font-size: 14px; font-weight: 730; color: var(--xs-ink); }
 .invite-copy-heading span { color: var(--xs-muted); font-size: 11px; }
 .invite-copy-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .invite-copy-value { font-size: 14px; font-weight: 650; overflow-wrap: anywhere; min-width: 0; }
 .invite-copy-button { flex-shrink: 0; min-width: 112px; }
 .invite-mail-example {
-  padding: 17px; margin: 0;
-  font: inherit; font-size: 12px; line-height: 2;
-  color: var(--xs-ink); white-space: pre-wrap; overflow-wrap: anywhere;
-  background: var(--xs-soft); border: 1px solid var(--xs-rule);
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 158px;
+  padding: 17px;
+  margin: 0;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--xs-ink);
+  background: var(--xs-soft);
+  border: 1px solid var(--xs-rule);
   border-radius: 12px;
+  resize: vertical;
 }
+.invite-mail-example:focus-visible {
+  outline: 2px solid var(--xs-ink);
+  outline-offset: 2px;
+}
+.invite-copy-section .invite-hint { margin-top: 8px; color: var(--xs-muted); font-size: 11px; line-height: 1.8; }
 .invite-template-button { margin-top: 13px; width: 100%; }
 .invite-copy-notice { min-height: 22px; color: var(--xs-muted); font-size: 12px; }
 .invite-privacy {
